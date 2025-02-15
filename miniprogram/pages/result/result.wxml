@@ -1,0 +1,44 @@
+<navigation-bar 
+  title="八字分析" 
+  back="{{true}}" 
+  color="black" 
+  background="#FFF">
+</navigation-bar>
+
+<view class="result-container">
+  <!-- 思考过程展示区 -->
+  <view class="thinking-section {{showThinking ? 'expanded' : ''}}">
+    <view class="thinking-header" bindtap="toggleThinking">
+      <text>思考过程</text>
+      <view class="toggle-icon">{{showThinking ? '收起' : '展开'}}</view>
+    </view>
+    
+    <view class="thinking-content">
+      <view class="thinking-dots" wx:if="{{thinking}}">
+        <text>正在分析中</text>
+        <view class="dots">
+          <text>.</text><text>.</text><text>.</text>
+        </view>
+      </view>
+      
+      <towxml nodes="{{markdownContent}}" />
+    </view>
+  </view>
+
+  <!-- 分析结果展示区 -->
+  <view class="analysis-content">
+    <view class="header">
+      <text class="title">分析结果</text>
+    </view>
+
+    <!-- 分析步骤 -->
+    <view class="analysis-steps">
+      <block wx:for="{{analysisSteps}}" wx:key="index">
+        <view class="step-item {{item ? 'show' : ''}}">
+          <view class="step-number">步骤 {{index + 1}}</view>
+          <view class="step-content">{{item}}</view>
+        </view>
+      </block>
+    </view>
+  </view>
+</view> 

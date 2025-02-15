@@ -1,0 +1,96 @@
+<!-- pages/index/index.wxml -->
+<view class="page-container">
+  <!-- 顶部装饰性图案 -->
+  <image 
+    src="/images/header-bg.png" 
+    class="header-image" 
+    mode="widthFix"
+  />
+
+  <view class="form-card">
+    <!-- 标题 -->
+    <view class="title">生辰八字测算</view>
+    
+    <!-- 日历类型选择 -->
+    <view class="calendar-switch">
+      <view 
+        class="switch-item {{!isLunar ? 'active' : ''}}" 
+        bindtap="onCalendarSwitch"
+      >公历</view>
+      <view 
+        class="switch-item {{isLunar ? 'active' : ''}}" 
+        bindtap="onCalendarSwitch"
+      >农历</view>
+    </view>
+
+    <!-- 生日选择 -->
+    <view class="input-group">
+      <text class="label">出生日期</text>
+      <picker
+        mode="date"
+        value="{{birthday}}"
+        start="1900-01-01"
+        end="2024-12-31"
+        bindchange="onBirthdayChange"
+      >
+        <view class="picker-input {{birthday ? '' : 'placeholder'}}">
+          {{birthday || '请选择出生日期'}}
+        </view>
+      </picker>
+    </view>
+
+    <!-- 时间选择 -->
+    <view class="input-group">
+      <text class="label">出生时间</text>
+      <picker
+        mode="time"
+        value="{{birthTime}}"
+        bindchange="onTimeChange"
+      >
+        <view class="picker-input {{birthTime ? '' : 'placeholder'}}">
+          {{birthTime || '请选择出生时间'}}
+        </view>
+      </picker>
+    </view>
+
+    <!-- 地区选择 -->
+    <view class="input-group">
+      <text class="label">出生地点</text>
+      <picker
+        mode="region"
+        value="{{region}}"
+        bindchange="onRegionChange"
+      >
+        <view class="picker-input {{region[0] ? '' : 'placeholder'}}">
+          {{region[0] ? region[0] + ' ' + region[1] + ' ' + region[2] : '请选择出生地'}}
+        </view>
+      </picker>
+    </view>
+
+      <!-- 提交按钮 -->
+    <button 
+      class="submit-button"
+      bindtap="handleSubmit"
+      disabled="{{loading}}"
+      hover-class="button-hover"
+    >
+      <block wx:if="{{!loading}}">开始测算</block>
+      <block wx:else>
+        <text class="loading-text">测算中</text>
+        <view class="loading-dots">
+          <text>.</text><text>.</text><text>.</text>
+        </view>
+      </block>
+    </button>
+
+    <!-- 用户协议 -->
+    <view class="agreement">
+      <checkbox checked="{{true}}" color="#d4af7a" disabled />
+      <text>已阅读并同意</text>
+      <navigator url="/pages/agreement/index" class="link">《服务协议》</navigator>
+    </view>
+  </view>
+
+  <!-- 占位装饰元素 -->
+  <view class="decorative-line"></view>
+</view>
