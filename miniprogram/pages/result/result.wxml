@@ -10,18 +10,17 @@
   <view class="thinking-section {{showThinking ? 'expanded' : ''}}">
     <view class="thinking-header" bindtap="toggleThinking">
       <text>思考过程</text>
+      <view class="thinking-status" wx:if="{{thinking}}">
+        <text class="loading-text">思考中</text>
+        <view class="loading-dots">
+          <text>.</text><text>.</text><text>.</text>
+        </view>
+      </view>
       <view class="toggle-icon">{{showThinking ? '收起' : '展开'}}</view>
     </view>
     
     <view class="thinking-content">
-      <view class="thinking-dots" wx:if="{{thinking}}">
-        <text>正在分析中</text>
-        <view class="dots">
-          <text>.</text><text>.</text><text>.</text>
-        </view>
-      </view>
-      
-      <towxml nodes="{{markdownContent}}" />
+      <towxml nodes="{{reasoningContentMarkdown}}" />
     </view>
   </view>
 

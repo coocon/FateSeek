@@ -15,5 +15,6 @@
     "weui": true
   },
   "usingComponents": {
+    "towxml": "/towxml/towxml"
   }
 }

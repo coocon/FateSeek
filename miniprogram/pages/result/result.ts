@@ -42,7 +42,7 @@ const processChunk = (chunk, apiConfig, onProgress) => {
     try {
       // 统一使用 TextDecoder 解码二进制数据
       const text = new TextDecoder('utf-8').decode(new Uint8Array(chunk.data));
-      console.log('收到数据块:', text);  // 添加日志
+      // console.log('收到数据块:', text);  // 添加日志
       
       const lines = text.split('\n');
       let hasProgress = false;
@@ -68,7 +68,7 @@ const processChunk = (chunk, apiConfig, onProgress) => {
         try {
           // 解析 JSON 数据
           const data = JSON.parse(trimmed.slice(6));
-          console.log('解析的数据:', data);  // 添加日志
+          // console.log('解析的数据:', data);  // 添加日志
           
           // 检查是否是最后一个数据块
           if (data.choices?.[0]?.finish_reason === 'stop') {
@@ -83,11 +83,11 @@ const processChunk = (chunk, apiConfig, onProgress) => {
           // 累积内容
           if (delta.content) {
             content += delta.content;
-            console.log('累积内容:', content);  // 添加日志
+            // console.log('累积内容:', content);  // 添加日志
           }
           if (delta.reasoning_content) {
             reasoningContent += delta.reasoning_content;
-            console.log('累积推理内容:', reasoningContent);  // 添加日志
+            // console.log('累积推理内容:', reasoningContent);  // 添加日志
           }
           
           hasProgress = true;
@@ -128,8 +128,8 @@ Page({
     data: {
       thinking: true,
       showThinking: true,
-      thinkingContent: '',
-      markdownContent: null,
+      reasoningContent: '',
+      reasoningContentMarkdown: null,
       analysisSteps: [] as string[],
       currentStepIndex: -1,
       requestTask: null as WechatMiniprogram.RequestTask | null,
@@ -272,28 +272,36 @@ Page({
     },
 
     handleChunk(data: ChunkData) {
+      if (data.reasoningContent) {
+        const newContent = this.data.reasoningContent + data.reasoningContent;
+        // 使用完整内容重新解析 markdown
+        const markdownContent = getApp().towxml(newContent, 'markdown', { theme: 'light' });
+        this.setData({
+            reasoningContent: newContent,
+            reasoningContentMarkdown: markdownContent,
+        }, ()=> {
+            if (this.data.autoScroll) {
+                this.scrollToBottom();
+            }
+        });
+      }
       if (data.content) {
         // 累加内容
         const newContent = this.data.fullContent + data.content;
-        this.setData({ fullContent: newContent }, () => {
-          // 使用完整内容重新解析 markdown
-          const markdownContent = getApp().towxml(newContent, 'markdown', {
-            theme: 'light',
-            events: {
-              tap: (e: any) => {
-                console.log('tap', e);
-              }
-            }
-          });
+        const markdownContent = getApp().towxml(newContent, 'markdown', { theme: 'light' });
           
           // 更新 markdown 内容
-          this.setData({
-            markdownContent
-          }, () => {
-            if (this.data.autoScroll) {
-              this.scrollToBottom();
-            }
-          });
+          this.setData(
+              {
+                  fullContent: newContent,
+                  fullContentMarkdown: markdownContent,
+              },
+              () => {
+                  if (this.data.autoScroll) {
+                      this.scrollToBottom();
+                  }
+              }
+          );
 
           // 处理步骤分析
           if (this.isNewStep(data.content)) {
@@ -307,7 +315,6 @@ Page({
               analysisSteps: [...this.data.analysisSteps]
             });
           }
-        });
       }
 
       if (data.isLast) {
@@ -321,16 +328,24 @@ Page({
     // 滚动到底部
     scrollToBottom() {
       const query = wx.createSelectorQuery();
+      
+      // 分别获取思考过程和分析结果的高度
       query.select('.thinking-content').boundingClientRect();
+      query.select('.analysis-content').boundingClientRect();
       query.selectViewport().scrollOffset();
+      
       query.exec((res) => {
-        if (res[0] && res[1]) {
-          const contentHeight = res[0].height;
-          const scrollTop = res[1].scrollTop;
+        if (res[0] && res[1] && res[2]) {
+          const thinkingHeight = res[0].height;
+          const analysisHeight = res[1].height;
+          const scrollTop = res[2].scrollTop;
           const windowHeight = wx.getSystemInfoSync().windowHeight;
           
+          // 计算总内容高度
+          const contentHeight = thinkingHeight + analysisHeight;
+          
           wx.pageScrollTo({
-            scrollTop: contentHeight + scrollTop - windowHeight + 100,
+            scrollTop: contentHeight - windowHeight + 200, // 增加一些底部空间
             duration: 300
           });
         }
