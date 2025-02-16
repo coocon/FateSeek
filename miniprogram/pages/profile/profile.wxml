@@ -1,0 +1,30 @@
+<navigation-bar 
+  title="我的" 
+  back="{{false}}" 
+  color="black"
+  background="#FFF">
+</navigation-bar>
+
+<view class="profile-container">
+  <view class="user-info">
+    <view class="avatar-wrapper">
+      <image class="avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" />
+    </view>
+    <view class="nickname">{{userInfo.nickName || '未登录'}}</view>
+  </view>
+
+  <view class="menu-list">
+    <view class="menu-item">
+      <view class="menu-title">我的收藏</view>
+      <view class="menu-arrow">></view>
+    </view>
+    <view class="menu-item">
+      <view class="menu-title">使用记录</view>
+      <view class="menu-arrow">></view>
+    </view>
+    <view class="menu-item">
+      <view class="menu-title">关于我们</view>
+      <view class="menu-arrow">></view>
+    </view>
+  </view>
+</view> 

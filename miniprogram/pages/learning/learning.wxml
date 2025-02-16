@@ -1,0 +1,20 @@
+<navigation-bar 
+  title="学习资料" 
+  back="{{false}}" 
+  color="black"
+  background="#FFF">
+</navigation-bar>
+
+<view class="learning-container">
+  <view class="article-list">
+    <view class="article-item" 
+          wx:for="{{articles}}" 
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onArticleTap">
+      <view class="article-title">{{item.title}}</view>
+      <view class="article-desc">{{item.desc}}</view>
+      <view class="article-date">{{item.date}}</view>
+    </view>
+  </view>
+</view> 

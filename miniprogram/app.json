@@ -2,11 +2,39 @@
   "pages": [
     "pages/index/index",
     "pages/logs/logs",
-    "pages/result/result"
+    "pages/result/result",
+    "pages/learning/learning",
+    "pages/profile/profile"
   ],
   "window": {
     "navigationBarTextStyle": "black",
     "navigationStyle": "custom"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#d4af7a",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tab/home.png",
+        "selectedIconPath": "images/tab/home-active.png"
+      },
+      {
+        "pagePath": "pages/learning/learning",
+        "text": "学习资料",
+        "iconPath": "images/tab/learning.png",
+        "selectedIconPath": "images/tab/learning-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/tab/profile.png",
+        "selectedIconPath": "images/tab/profile-active.png"
+      }
+    ]
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",
