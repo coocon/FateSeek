@@ -1,11 +1,38 @@
-.disclaimer {
-  font-size: 22rpx;
-  color: #999999;
-  text-align: center;
-  padding: 20rpx 48rpx;
-  line-height: 1.6;
-  margin-top: 60rpx;
-  margin-bottom: 40rpx;
-  opacity: 0.8;
-  letter-spacing: 1rpx;
+/* 吸顶样式 */
+.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff; /* 确保背景色遮挡住下方内容 */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05); /* 添加微妙的分隔线 */
+}
+
+/* 思考过程头部样式优化 */
+.thinking-header {
+  padding: 24rpx 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 30rpx;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+/* 分析结果头部样式优化 */
+.analysis-content .header {
+  padding: 24rpx 32rpx;
+  background: #fff;
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+/* 为吸顶元素添加阴影效果 */
+.sticky {
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 内容区域样式调整 */
+.thinking-content, 
+.analysis-steps {
+  padding-top: 16rpx; /* 与吸顶标题保持一定距离 */
 } 

@@ -14,14 +14,14 @@
   </view>
 
   <view class="menu-list">
-    <view class="menu-item">
+    <!-- <view class="menu-item">
       <view class="menu-title">我的收藏</view>
       <view class="menu-arrow">></view>
     </view>
     <view class="menu-item">
       <view class="menu-title">使用记录</view>
       <view class="menu-arrow">></view>
-    </view>
+    </view> -->
     <view class="menu-item">
       <view class="menu-title">关于我们</view>
       <view class="menu-arrow">></view>

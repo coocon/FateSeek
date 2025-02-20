@@ -8,6 +8,7 @@ Page({
       region: ['北京市', '北京市', '海淀区'],
       isLunar: false, // 是否农历
       loading: false,
+      gender: 'male', // 添加性别状态，默认男性
     },
   
     // 生日选择器变化
@@ -39,9 +40,17 @@ Page({
         isLunar: !this.data.isLunar
       });
     },
+
+    // 切换性别
+    onGenderSwitch(e: WechatMiniprogram.TouchEvent) {
+      const gender = e.currentTarget.dataset.gender;
+      if (this.data.gender !== gender) {  // 只在不同值时才更新
+        this.setData({ gender });
+      }
+    },
   
     async handleSubmit() {
-      const { birthday, birthTime, region, isLunar } = this.data;
+      const { birthday, birthTime, region, isLunar, gender } = this.data;
       
       if (!birthday || !birthTime || !region[0]) {
         wx.showToast({ 
@@ -58,14 +67,16 @@ Page({
           birthday,
           birthTime,
           region,
-          isLunar
+          isLunar,
+          gender
         });
 
         const params = encodeURIComponent(JSON.stringify({
           birthday,
           birthTime,
           region,
-          isLunar
+          isLunar,
+          gender
         }));
 
         wx.navigateTo({

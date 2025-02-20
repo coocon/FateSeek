@@ -10,7 +10,7 @@
       bindtouchmove="handleTouchMove">
   <!-- 思考过程展示区 -->
   <view class="thinking-section {{showThinking ? 'expanded' : ''}}">
-    <view class="thinking-header" bindtap="toggleThinking">
+    <view class="thinking-header sticky" bindtap="toggleThinking">
       <text>思考过程</text>
       <view class="thinking-status" wx:if="{{thinking}}">
         <text class="loading-text">思考中</text>
@@ -28,7 +28,7 @@
 
   <!-- 分析结果展示区 -->
   <view class="analysis-content">
-    <view class="header">
+    <view class="header sticky">
       <text class="title">分析结果</text>
     </view>
 

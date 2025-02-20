@@ -34,15 +34,59 @@ interface ChunkData {
   };
 }
 
+// 添加一个简单的 UTF-8 解码函数
+const decodeUtf8 = (bytes: Uint8Array): string => {
+  let result = '';
+  let i = 0;
+  while (i < bytes.length) {
+    let byte = bytes[i];
+    if (byte < 0x80) {
+      // 1字节字符
+      result += String.fromCharCode(byte);
+      i++;
+    } else if (byte < 0xE0) {
+      // 2字节字符
+      const byte2 = bytes[i + 1];
+      result += String.fromCharCode(((byte & 0x1F) << 6) | (byte2 & 0x3F));
+      i += 2;
+    } else if (byte < 0xF0) {
+      // 3字节字符
+      const byte2 = bytes[i + 1];
+      const byte3 = bytes[i + 2];
+      result += String.fromCharCode(
+        ((byte & 0x0F) << 12) |
+        ((byte2 & 0x3F) << 6) |
+        (byte3 & 0x3F)
+      );
+      i += 3;
+    } else {
+      // 4字节字符（用两个UTF-16代理对表示）
+      const byte2 = bytes[i + 1];
+      const byte3 = bytes[i + 2];
+      const byte4 = bytes[i + 3];
+      let codepoint = ((byte & 0x07) << 18) |
+                     ((byte2 & 0x3F) << 12) |
+                     ((byte3 & 0x3F) << 6) |
+                     (byte4 & 0x3F);
+      codepoint -= 0x10000;
+      result += String.fromCharCode(
+        (codepoint >> 10) + 0xD800,
+        (codepoint & 0x3FF) + 0xDC00
+      );
+      i += 4;
+    }
+  }
+  return result;
+};
+
 const processChunk = (chunk: any, apiConfig: any, onProgress: (data: ChunkData) => void) => {
     if (!chunk || !chunk.data) {
       return false;
     }
   
     try {
-      // 统一使用 TextDecoder 解码二进制数据
-      const decoder = new TextDecoder('utf-8');
-      const text = decoder.decode(new Uint8Array(chunk.data));
+      // 使用自定义的解码函数替代 TextDecoder
+      const text = decodeUtf8(new Uint8Array(chunk.data));
       
       const lines = text.split('\n');
       let hasProgress = false;
@@ -124,6 +168,18 @@ const processChunk = (chunk: any, apiConfig: any, onProgress: (data: ChunkData) 
       return false;
     }
 }
+
+// 将节流函数移到 Page 外部
+const throttle = (fn: Function, wait: number) => {
+  let lastTime = 0;
+  return function(...args: any[]) {
+    const now = Date.now();
+    if (now - lastTime >= wait) {
+      fn.apply(this, args);
+      lastTime = now;
+    }
+  }
+};
 
 Page({
     data: {
@@ -351,25 +407,13 @@ Page({
           // 检查是否需要滚动（内容高度超过视窗）
           if (contentHeight > windowHeight) {
             wx.pageScrollTo({
-              scrollTop: contentHeight - windowHeight + 100,
-              duration: 300
+              scrollTop: contentHeight - windowHeight + 50,
+              duration: 200
             });
           }
         }
       });
-    }, 500), // 500ms 的节流时间
-
-    // 添加节流函数
-    function throttle(fn: Function, wait: number) {
-      let lastTime = 0;
-      return function(...args: any[]) {
-        const now = Date.now();
-        if (now - lastTime >= wait) {
-          fn.apply(this, args);
-          lastTime = now;
-        }
-      }
-    },
+    }, 200),
 
     isNewStep(content: string): boolean {
       return (

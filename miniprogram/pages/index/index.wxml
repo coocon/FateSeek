@@ -11,16 +11,33 @@
     <!-- 标题 -->
     <view class="title">生辰八字测算</view>
     
-    <!-- 日历类型选择 -->
-    <view class="calendar-switch">
-      <view 
-        class="switch-item {{!isLunar ? 'active' : ''}}" 
-        bindtap="onCalendarSwitch"
-      >公历</view>
-      <view 
-        class="switch-item {{isLunar ? 'active' : ''}}" 
-        bindtap="onCalendarSwitch"
-      >农历</view>
+    <!-- 选项行 -->
+    <view class="options-row">
+      <!-- 日历类型选择 -->
+      <view class="calendar-switch">
+        <view 
+          class="switch-item {{!isLunar ? 'active' : ''}}" 
+          bindtap="onCalendarSwitch"
+        >公历</view>
+        <view 
+          class="switch-item {{isLunar ? 'active' : ''}}" 
+          bindtap="onCalendarSwitch"
+        >农历</view>
+      </view>
+
+      <!-- 性别选择 -->
+      <view class="calendar-switch">
+        <view 
+          class="switch-item {{gender === 'male' ? 'active' : ''}}" 
+          bindtap="onGenderSwitch"
+          data-gender="male"
+        >男</view>
+        <view 
+          class="switch-item {{gender === 'female' ? 'active' : ''}}" 
+          bindtap="onGenderSwitch"
+          data-gender="female"
+        >女</view>
+      </view>
     </view>
 
     <!-- 生日选择 -->

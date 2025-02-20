@@ -3,7 +3,7 @@
   "projectname": "FateSeek",
   "setting": {
     "compileHotReLoad": true,
-    "urlCheck": false
+    "urlCheck": true
   },
   "libVersion": "development"
 }
