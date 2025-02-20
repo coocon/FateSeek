@@ -1,0 +1,116 @@
+/**
+ * 小程序目录结构说明
+ */
+export const DirectoryStructure = {
+  // 基础配置文件
+  rootFiles: {
+    'app.json': '小程序全局配置文件，包含页面路径、窗口设置、tabBar等',
+    'app.ts': '小程序入口文件，包含全局方法和数据',
+    'app.less': '全局样式文件',
+    'package.json': '项目配置和依赖',
+  },
+
+  // 主要目录
+  directories: {
+    components: {
+      description: '公共组件目录',
+      items: {
+        'navigation-bar': '自定义导航栏组件'
+      }
+    },
+
+    config: {
+      description: '配置文件目录', 
+      items: {
+        'env.ts': '环境配置，包含API密钥等'
+      }
+    },
+
+    pages: {
+      description: '页面文件目录',
+      items: {
+        index: '首页-生辰八字测算',
+        result: '测算结果页',
+        learning: '学习资料页',
+        profile: '个人中心页',
+        logs: '日志页面'
+      }
+    },
+
+    utils: {
+      description: '工具函数目录',
+      items: {
+        'request.ts': '网络请求工具',
+        'util.ts': '通用工具函数'
+      }
+    }
+  },
+
+  // 文件命名规则
+  namingRules: {
+    components: '组件目录使用kebab-case命名',
+    pages: '页面目录使用小写字母命名',
+    files: {
+      style: '.less结尾',
+      typescript: '.ts结尾',
+      template: '.wxml结尾',
+      config: '.json结尾'
+    }
+  },
+
+  // 技术栈
+  techStack: {
+    framework: 'TypeScript + LESS',
+    template: 'WXML',
+    components: '基于微信小程序自定义组件',
+    styling: 'LESS预处理器'
+  },
+
+  // 主要功能模块
+  mainFeatures: {
+    bazi: {
+      description: '生辰八字测算功能',
+      pages: ['index', 'result']
+    },
+    learning: {
+      description: '八字学习资料',
+      pages: ['learning']
+    },
+    profile: {
+      description: '用户中心功能',
+      pages: ['profile']
+    }
+  }
+};
+
+/**
+ * 页面开发规范
+ */
+export const DevelopmentRules = {
+  // 文件结构规范
+  fileStructure: {
+    required: ['.wxml', '.ts', '.json', '.less'],
+    naming: 'kebab-case'
+  },
+
+  // 样式规范
+  styling: {
+    global: 'app.less',
+    scoped: '页面级less文件',
+    naming: 'BEM命名规范'
+  },
+
+  // TypeScript规范
+  typescript: {
+    strict: true,
+    interface: '使用接口定义数据结构',
+    async: '使用async/await处理异步'
+  },
+
+  // 组件规范
+  component: {
+    props: '使用properties定义属性',
+    events: '使用triggerEvent触发事件',
+    lifecycle: '使用lifetimes定义生命周期'
+  }
+}; 

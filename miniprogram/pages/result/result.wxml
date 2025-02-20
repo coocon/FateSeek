@@ -5,7 +5,9 @@
   background="#FFF">
 </navigation-bar>
 
-<view class="result-container">
+<view class="result-container" 
+      bindtouchstart="handleTouchStart" 
+      bindtouchmove="handleTouchMove">
   <!-- 思考过程展示区 -->
   <view class="thinking-section {{showThinking ? 'expanded' : ''}}">
     <view class="thinking-header" bindtap="toggleThinking">
@@ -19,7 +21,7 @@
       <view class="toggle-icon">{{showThinking ? '收起' : '展开'}}</view>
     </view>
     
-    <view class="thinking-content">
+    <view class="thinking-content" hidden="{{!showThinking}}">
       <towxml nodes="{{reasoningContentMarkdown}}" />
     </view>
   </view>
@@ -39,5 +41,12 @@
         </view>
       </block>
     </view>
+
+    <towxml nodes="{{fullContentMarkdown}}" />
+  </view>
+
+  <!-- 添加免责声明 -->
+  <view class="disclaimer">
+    本结果由DeepSeek智能算法生成，内容仅供娱乐参考。请您理性看待，切勿迷信或用于重要决策。AI预测不代表真实命运，请以积极心态面对生活。
   </view>
 </view> 

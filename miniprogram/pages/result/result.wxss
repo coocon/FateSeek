@@ -1,0 +1,11 @@
+.disclaimer {
+  font-size: 22rpx;
+  color: #999999;
+  text-align: center;
+  padding: 20rpx 48rpx;
+  line-height: 1.6;
+  margin-top: 60rpx;
+  margin-bottom: 40rpx;
+  opacity: 0.8;
+  letter-spacing: 1rpx;
+} 

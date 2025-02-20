@@ -34,15 +34,15 @@ interface ChunkData {
   };
 }
 
-const processChunk = (chunk, apiConfig, onProgress) => {
+const processChunk = (chunk: any, apiConfig: any, onProgress: (data: ChunkData) => void) => {
     if (!chunk || !chunk.data) {
       return false;
     }
   
     try {
       // 统一使用 TextDecoder 解码二进制数据
-      const text = new TextDecoder('utf-8').decode(new Uint8Array(chunk.data));
-      // console.log('收到数据块:', text);  // 添加日志
+      const decoder = new TextDecoder('utf-8');
+      const text = decoder.decode(new Uint8Array(chunk.data));
       
       const lines = text.split('\n');
       let hasProgress = false;
@@ -56,7 +56,6 @@ const processChunk = (chunk, apiConfig, onProgress) => {
         
         // 检查是否是结束标记
         if (trimmed === 'data: [DONE]') {
-          console.log('收到结束标记');  // 添加日志
           isLast = true;
           hasProgress = true;
           break;
@@ -66,13 +65,17 @@ const processChunk = (chunk, apiConfig, onProgress) => {
         if (!trimmed.startsWith('data: ')) continue;
   
         try {
-          // 解析 JSON 数据
-          const data = JSON.parse(trimmed.slice(6));
-          // console.log('解析的数据:', data);  // 添加日志
+          // 处理可能的不完整JSON
+          let jsonStr = trimmed.slice(6);
+          // 确保JSON字符串是完整的
+          if (!jsonStr.endsWith('}')) {
+            continue; // 跳过不完整的JSON
+          }
+          
+          const data = JSON.parse(jsonStr);
           
           // 检查是否是最后一个数据块
           if (data.choices?.[0]?.finish_reason === 'stop') {
-            console.log('检测到结束原因: stop');  // 添加日志
             isLast = true;
           }
           
@@ -83,16 +86,15 @@ const processChunk = (chunk, apiConfig, onProgress) => {
           // 累积内容
           if (delta.content) {
             content += delta.content;
-            // console.log('累积内容:', content);  // 添加日志
           }
           if (delta.reasoning_content) {
             reasoningContent += delta.reasoning_content;
-            // console.log('累积推理内容:', reasoningContent);  // 添加日志
           }
           
           hasProgress = true;
         } catch (e) {
-          console.error('解析JSON数据失败:', e, '原始数据:', trimmed);
+          console.warn('解析JSON数据失败:', e, '原始数据:', trimmed);
+          continue; // 继续处理下一行
         }
       }
       
@@ -106,14 +108,13 @@ const processChunk = (chunk, apiConfig, onProgress) => {
           reasoningContent = reasoningContent.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
         }
         
-        const progressData = {
+        const progressData: ChunkData = {
           content: content || '',
           reasoningContent: reasoningContent || '',
           isLast: isLast,
           raw: { content, reasoningContent }
         };
         
-        console.log('触发进度回调:', progressData);  // 添加日志
         onProgress(progressData);
       }
       
@@ -122,7 +123,7 @@ const processChunk = (chunk, apiConfig, onProgress) => {
       console.error('处理数据块失败:', error, '原始数据:', chunk);
       return false;
     }
-  }
+}
 
 Page({
     data: {
@@ -130,11 +131,15 @@ Page({
       showThinking: true,
       reasoningContent: '',
       reasoningContentMarkdown: null,
+      fullContent: '',
+      fullContentMarkdown: null,
       analysisSteps: [] as string[],
       currentStepIndex: -1,
       requestTask: null as WechatMiniprogram.RequestTask | null,
       autoScroll: true,
-      fullContent: '',
+      lastContent: '', // 用于检测内容变化
+      userScrolling: false, // 用户是否在滚动
+      touchStartY: 0, // 触摸起始位置
     },
   
     async onLoad(options: { params: string }) {
@@ -274,62 +279,61 @@ Page({
     handleChunk(data: ChunkData) {
       if (data.reasoningContent) {
         const newContent = this.data.reasoningContent + data.reasoningContent;
-        // 使用完整内容重新解析 markdown
+        // 检查是否有新的换行，并且内容变化超过一定长度
+        const hasNewLine = this.checkForNewLine(this.data.reasoningContent, newContent);
+        const contentDiff = newContent.length - this.data.reasoningContent.length;
+        
         const markdownContent = getApp().towxml(newContent, 'markdown', { theme: 'light' });
         this.setData({
-            reasoningContent: newContent,
-            reasoningContentMarkdown: markdownContent,
-        }, ()=> {
-            if (this.data.autoScroll) {
-                this.scrollToBottom();
-            }
+          reasoningContent: newContent,
+          reasoningContentMarkdown: markdownContent,
+        }, () => {
+          // 只在有新换行且内容变化超过50个字符时触发滚动
+          if (hasNewLine && contentDiff > 50) {
+            this.scrollToBottom();
+          }
         });
       }
+
       if (data.content) {
-        // 累加内容
         const newContent = this.data.fullContent + data.content;
+        // 分析结果部分保持原有的换行检测逻辑
+        const hasNewLine = this.checkForNewLine(this.data.fullContent, newContent);
+        
         const markdownContent = getApp().towxml(newContent, 'markdown', { theme: 'light' });
-          
-          // 更新 markdown 内容
-          this.setData(
-              {
-                  fullContent: newContent,
-                  fullContentMarkdown: markdownContent,
-              },
-              () => {
-                  if (this.data.autoScroll) {
-                      this.scrollToBottom();
-                  }
-              }
-          );
-
-          // 处理步骤分析
-          if (this.isNewStep(data.content)) {
-            this.data.currentStepIndex++;
-            this.data.analysisSteps[this.data.currentStepIndex] = '';
+        this.setData({
+          fullContent: newContent,
+          fullContentMarkdown: markdownContent,
+        }, () => {
+          if (hasNewLine) {
+            this.scrollToBottom();
           }
-
-          if (this.data.currentStepIndex >= 0) {
-            this.data.analysisSteps[this.data.currentStepIndex] += data.content;
-            this.setData({ 
-              analysisSteps: [...this.data.analysisSteps]
-            });
-          }
+        });
       }
 
       if (data.isLast) {
         this.setData({ 
           thinking: false,
-          autoScroll: false
+          autoScroll: false // 结束时关闭自动滚动
         });
       }
     },
 
-    // 滚动到底部
-    scrollToBottom() {
+    // 检查内容是否有新的换行
+    checkForNewLine(oldContent: string, newContent: string): boolean {
+      const oldLines = oldContent.split('\n').length;
+      const newLines = newContent.split('\n').length;
+      return newLines > oldLines;
+    },
+
+    // 修改滚动到底部的方法
+    scrollToBottom: throttle(function() {
+      // 如果用户在滚动或已禁用自动滚动，则不执行
+      if (this.data.userScrolling || !this.data.autoScroll) {
+        return;
+      }
+
       const query = wx.createSelectorQuery();
-      
-      // 分别获取思考过程和分析结果的高度
       query.select('.thinking-content').boundingClientRect();
       query.select('.analysis-content').boundingClientRect();
       query.selectViewport().scrollOffset();
@@ -344,12 +348,27 @@ Page({
           // 计算总内容高度
           const contentHeight = thinkingHeight + analysisHeight;
           
-          wx.pageScrollTo({
-            scrollTop: contentHeight - windowHeight + 200, // 增加一些底部空间
-            duration: 300
-          });
+          // 检查是否需要滚动（内容高度超过视窗）
+          if (contentHeight > windowHeight) {
+            wx.pageScrollTo({
+              scrollTop: contentHeight - windowHeight + 100,
+              duration: 300
+            });
+          }
         }
       });
+    }, 500), // 500ms 的节流时间
+
+    // 添加节流函数
+    function throttle(fn: Function, wait: number) {
+      let lastTime = 0;
+      return function(...args: any[]) {
+        const now = Date.now();
+        if (now - lastTime >= wait) {
+          fn.apply(this, args);
+          lastTime = now;
+        }
+      }
     },
 
     isNewStep(content: string): boolean {
@@ -373,6 +392,35 @@ Page({
       if (this.data.requestTask) {
         this.data.requestTask.abort();
       }
-    }
+    },
+
+    // 添加触摸事件处理
+    handleTouchStart(e: WechatMiniprogram.TouchEvent) {
+      this.setData({
+        touchStartY: e.touches[0].clientY
+      });
+    },
+
+    handleTouchMove(e: WechatMiniprogram.TouchEvent) {
+      const touchMoveY = e.touches[0].clientY;
+      const moveDistance = Math.abs(touchMoveY - this.data.touchStartY);
+      
+      // 如果移动距离超过50px，认为是用户主动滚动
+      if (moveDistance > 50 && this.data.autoScroll) {
+        this.setData({ autoScroll: false });
+      }
+    },
+
+    // 监听页面滚动
+    onPageScroll(e: WechatMiniprogram.PageScrollEvent) {
+      if (!this.data.userScrolling) {
+        this.data.userScrolling = true;
+        
+        // 设置延时，防止频繁触发
+        setTimeout(() => {
+          this.data.userScrolling = false;
+        }, 150);
+      }
+    },
 });
 
