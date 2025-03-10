@@ -1,7 +1,6 @@
 import { request } from '../../utils/request';
 import { config } from '../../config/env';
 import { getBaziInfo } from '../../utils/util';
-const app = getApp();
 
 interface IPageData {
   params: {
@@ -44,8 +43,7 @@ interface IPageInstance {
     region: string[];
     isLunar: boolean;
   }) => Promise<void>;
-  handleChunk: (chunk: WechatMiniprogram.OnChunkReceivedListenerResult | any) => void;
-  processChunk: (text: string) => void;
+  handleChunk: (chunk: string) => void;
   handleError: () => void;
   toggleThinking: () => void;
   handleTouchStart: (e: WechatMiniprogram.TouchEvent) => void;
@@ -54,6 +52,28 @@ interface IPageInstance {
   onUnload: () => void;
 }
 
+interface StreamResponse {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: Array<{
+    index: number;
+    delta: {
+      content?: string;
+      role?: string;
+    };
+    finish_reason: null | string;
+  }>;
+}
+
+interface DeltaContent {
+  choices: Array<{
+    delta: {
+      content?: string;
+    };
+  }>;
+}
 
 interface ChunkData {
   content: string;
@@ -110,36 +130,107 @@ const decodeUtf8 = (bytes: Uint8Array): string => {
   return result;
 };
 
-// 简单的文本转Markdown助手函数
-const textToMarkdown = (text: string): string => {
-  if (!text) return '';
-  const result = app.towxml(text, 'markdown', {
-    theme: 'light', // 主题，支持 light 和 dark
-  });
-  return result;
+const processChunk = (chunk: any, apiConfig: any, onProgress: (data: ChunkData) => void) => {
+    if (!chunk || !chunk.data) {
+      return false;
+    }
+  
+    try {
+      // 使用自定义的解码函数替代 TextDecoder
+      const text = decodeUtf8(new Uint8Array(chunk.data));
+      
+      const lines = text.split('\n');
+      let hasProgress = false;
+      let isLast = false;
+      let content = '';
+      let reasoningContent = '';
+  
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        
+        // 检查是否是结束标记
+        if (trimmed === 'data: [DONE]') {
+          isLast = true;
+          hasProgress = true;
+          break;
+        }
+  
+        // 只处理 data: 开头的行
+        if (!trimmed.startsWith('data: ')) continue;
+  
+        try {
+          // 处理可能的不完整JSON
+          let jsonStr = trimmed.slice(6);
+          // 确保JSON字符串是完整的
+          if (!jsonStr.endsWith('}')) {
+            continue; // 跳过不完整的JSON
+          }
+          
+          const data = JSON.parse(jsonStr);
+          
+          // 检查是否是最后一个数据块
+          if (data.choices?.[0]?.finish_reason === 'stop') {
+            isLast = true;
+          }
+          
+          // 提取增量内容
+          const delta = data.choices?.[0]?.delta;
+          if (!delta) continue;
+  
+          // 累积内容
+          if (delta.content) {
+            content += delta.content;
+          }
+          if (delta.reasoning_content) {
+            reasoningContent += delta.reasoning_content;
+          }
+          
+          hasProgress = true;
+        } catch (e) {
+          console.warn('解析JSON数据失败:', e, '原始数据:', trimmed);
+          continue; // 继续处理下一行
+        }
+      }
+      
+      // 如果有内容或是最后一块，触发回调
+      if (hasProgress || isLast) {
+        // 处理换行符
+        if (content) {
+          content = content.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
+        }
+        if (reasoningContent) {
+          reasoningContent = reasoningContent.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
+        }
+        
+        const progressData: ChunkData = {
+          content: content || '',
+          reasoningContent: reasoningContent || '',
+          isLast: isLast,
+          raw: { content, reasoningContent }
+        };
+        
+        onProgress(progressData);
+      }
+      
+      return hasProgress || isLast;
+    } catch (error) {
+      console.error('处理数据块失败:', error, '原始数据:', chunk);
+      return false;
+    }
 }
 
-// 添加到接口中
-interface IPageInstance {
-  data: IPageData;
-  onLoad: (options: Record<string, string>) => void;
-  startAnalysis: (params: {
-    name: string;
-    gender: string;
-    bazi: any;
-    birthDateTime: string;
-    region: string[];
-    isLunar: boolean;
-  }) => Promise<void>;
-  handleChunk: (chunk: WechatMiniprogram.OnChunkReceivedListenerResult | any) => void;
-  processChunk: (text: string) => void;
-  handleError: () => void;
-  toggleThinking: () => void;
-  handleTouchStart: (e: WechatMiniprogram.TouchEvent) => void;
-  handleTouchMove: (e: WechatMiniprogram.TouchEvent) => void;
-  onPageScroll: () => void;
-  onUnload: () => void;
-}
+// 将节流函数移到 Page 外部
+const throttle = (fn: Function, wait: number) => {
+  let lastTime = 0;
+  return function(this: any, ...args: any[]) {
+    const now = Date.now();
+    if (now - lastTime >= wait) {
+      fn.apply(this, args);
+      lastTime = now;
+    }
+  }
+};
 
 Page<IPageData, IPageInstance>({
   data: {
@@ -289,8 +380,6 @@ Page<IPageData, IPageInstance>({
         thinking: true,
         content: '',
         reasoningContent: '',
-        reasoningContentMarkdown: '',
-        fullContentMarkdown: '',
         showThinking: false
       });
       
@@ -346,20 +435,54 @@ Page<IPageData, IPageInstance>({
           stream: true,
           ...config.MODEL_PARAMS
         },
-        enableChunked: true,
+        enableChunked: true, // 关闭分块传输
+        responseType: 'text',
         success: (res) => {
           console.log('请求成功:', res.statusCode);
+          // 处理完整响应
+          if (typeof res.data === 'string') {
+            const lines = res.data.split('\n');
+            let content = '';
+            let reasoningContent = '';
+            
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed || !trimmed.startsWith('data: ') || trimmed === 'data: [DONE]') continue;
+              
+              try {
+                const jsonStr = trimmed.slice(6);
+                const data = JSON.parse(jsonStr);
+                const text = data.choices?.[0]?.delta?.content || '';
+                console.log('收到内容:', text);
+                
+                if (text.includes('思考过程：') || reasoningContent.length > 0) {
+                  reasoningContent += text;
+                } else {
+                  content += text;
+                }
+              } catch (e) {
+                console.warn('解析数据失败:', e);
+              }
+            }
+            
+            // 一次性更新所有内容
+            this.setData({
+              content: content,
+              reasoningContent: reasoningContent,
+              showThinking: reasoningContent.length > 0,
+              thinking: false
+            });
+            
+            console.log('分析完成');
+          }
         },
         fail: (error) => {
           console.error('请求失败:', error);
           this.handleError();
         }
       });
-
-      // 监听数据流
-      requestTask.onChunkReceived(chunk => {
-        this.handleChunk(chunk);
-      });
+      // 处理流式数据
+      requestTask.onChunkReceived = this.handleChunk;
 
       this.setData({ requestTask });
     } catch (error) {
@@ -368,16 +491,93 @@ Page<IPageData, IPageInstance>({
     }
   },
 
+  handleChunk(chunk: WechatMiniprogram.OnChunkReceivedListenerResult | any) {
+    try {
+      // 对于流式响应，chunk 是一个包含 data 属性的对象
+      let text = '';
+      
+      if (typeof chunk === 'string') {
+        // 字符串类型的 chunk 直接处理
+        text = chunk;
+      } else if (chunk && chunk.data) {
+        // 对象类型的 chunk 需要解析 data 属性
+        if (typeof chunk.data === 'string') {
+          text = chunk.data;
+        } else if (chunk.data instanceof ArrayBuffer) {
+          text = decodeUtf8(new Uint8Array(chunk.data));
+        } else {
+          // 处理其他可能的类型
+          console.log('未知的数据类型:', typeof chunk.data);
+          return;
+        }
+      } else {
+        // 如果没有识别到有效数据，直接返回
+        return;
+      }
+      
+      // 处理流式数据
+      const lines = text.split('\n');
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith('data: ')) continue;
+        
+        // 处理 [DONE] 标记
+        if (trimmed === 'data: [DONE]') {
+          console.log('流式传输完成');
+          this.setData({ thinking: false });
+          continue;
+        }
+
+        try {
+          const jsonStr = trimmed.slice(6); // 移除 'data: ' 前缀
+          if (!jsonStr.trim() || !jsonStr.includes('{')) continue;
+          
+          const data = JSON.parse(jsonStr);
+          const delta = data.choices?.[0]?.delta;
+          
+          if (delta?.content) {
+            const content = delta.content;
+            console.log('收到内容:', content);
+            
+            // 检查是否包含思考过程标记
+            if (content.includes('思考过程：') || this.data.reasoningContent.length > 0) {
+              // 更新思考内容
+              this.setData({
+                reasoningContent: this.data.reasoningContent + content,
+                showThinking: true
+              });
+              console.log('更新思考内容:', this.data.reasoningContent);
+            } else {
+              // 更新分析结果
+              this.setData({
+                content: this.data.content + content
+              });
+              console.log('更新分析结果:', this.data.content);
+            }
+          }
+          
+          // 检查是否完成
+          if (data.choices?.[0]?.finish_reason === 'stop') {
+            this.setData({ thinking: false });
+            console.log('分析完成');
+          }
+        } catch (e) {
+          console.warn('解析JSON数据失败:', e, '原始数据:', trimmed);
+        }
+      }
+    } catch (error) {
+      console.error('处理数据块失败:', error);
+    }
+  },
+
   handleError() {
     this.setData({
       thinking: false,
-      content: this.data.content || '抱歉，分析过程中发生错误，请稍后再试。'
+      content: '抱歉，分析过程出现错误，请稍后重试。'
     });
-    
     wx.showToast({
-      title: '请求失败',
-      icon: 'none',
-      duration: 2000
+      title: '分析失败',
+      icon: 'none'
     });
   },
 
@@ -415,121 +615,6 @@ Page<IPageData, IPageInstance>({
   onUnload() {
     if (this.data.requestTask) {
       this.data.requestTask.abort();
-    }
-  },
-
-  // 处理数据块
-  handleChunk(chunk: WechatMiniprogram.OnChunkReceivedListenerResult | any) {
-    try {
-      let text = '';
-      
-      if (typeof chunk === 'string') {
-        text = chunk;
-      } else if (chunk && chunk.data) {
-        if (typeof chunk.data === 'string') {
-          text = chunk.data;
-        } else if (chunk.data instanceof ArrayBuffer) {
-          text = decodeUtf8(new Uint8Array(chunk.data));
-        }
-      }
-      
-      if (text) {
-        this.processChunk(text);
-      }
-    } catch (error) {
-      console.error('处理数据块失败:', error);
-    }
-  },
-
-  // 处理文本数据
-  processChunk(text: string) {
-    try {
-      // 解析数据块
-      const lines = text.split('\n');
-      let content = '';
-      let reasoningContent = '';
-      let hasProgress = false;
-      let isLast = false;
-      
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed || !trimmed.startsWith('data: ')) continue;
-        
-        // 处理 [DONE] 标记
-        if (trimmed === 'data: [DONE]') {
-          isLast = true;
-          continue;
-        }
-        
-        try {
-            const jsonStr = trimmed.slice(6); // 移除 'data: ' 前缀
-            if (!jsonStr.includes("{")) {
-                continue; // 跳过不完整的JSON
-            }
-
-            const data = JSON.parse(jsonStr);
-
-            // 检查是否是最后一个数据块
-            if (data.choices?.[0]?.finish_reason === "stop") {
-                isLast = true;
-            }
-
-            // 提取增量内容
-            const delta = data.choices?.[0]?.delta;
-            if (!delta) continue;
-
-            // 累积内容
-            if (delta.reasoning_content) {
-                // 检查是否包含思考过程标记
-                reasoningContent += delta.reasoning_content;
-            } 
-            if (delta.content) {
-                content += delta.content;
-            }
-
-            hasProgress = true;
-        } catch (e) {
-            console.warn("解析JSON数据失败:", e, "原始数据:", trimmed);
-            continue; // 继续处理下一行
-        }
-      }
-      
-      // 如果有内容或是最后一块，更新状态
-      if (hasProgress || isLast) {
-        // 处理换行符
-        if (content) {
-          content = content.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
-        }
-        if (reasoningContent) {
-          reasoningContent = reasoningContent.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
-        }
-        
-        // 更新状态
-        const newState: Partial<IPageData> = {};
-        
-        if (content) {
-          newState.content = (this.data.content || '') + content;
-          newState.fullContentMarkdown = textToMarkdown(newState.content);
-        }
-        
-        if (reasoningContent) {
-          newState.reasoningContent = (this.data.reasoningContent || '') + reasoningContent;
-          newState.reasoningContentMarkdown = textToMarkdown(newState.reasoningContent);
-          newState.showThinking = true;
-        }
-        
-        if (isLast) {
-          newState.thinking = false;
-        }
-        
-        this.setData(newState);
-        console.log('状态更新:', 
-          content ? '有分析结果' : '无分析结果', 
-          reasoningContent ? '有思考过程' : '无思考过程', 
-          isLast ? '传输完成' : '继续传输');
-      }
-    } catch (error) {
-      console.error('处理数据块失败:', error);
     }
   }
 });

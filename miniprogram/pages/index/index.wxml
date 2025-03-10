@@ -9,65 +9,67 @@
 
   <view class="form-card">
     <!-- 标题 -->
-    <view class="title">生辰八字测算</view>
+    <view class="title">生辰八字测算学习</view>
     
+    <!-- 姓名输入 -->
+    <view class="input-group">
+      <input 
+        class="input-field"
+        placeholder="请输入姓名"
+        value="{{name}}"
+        bindinput="onNameInput"
+      />
+    </view>
+
     <!-- 选项行 -->
     <view class="options-row">
-      <!-- 日历类型选择 -->
-      <view class="calendar-switch">
-        <view 
-          class="switch-item {{!isLunar ? 'active' : ''}}" 
-          bindtap="onCalendarSwitch"
-        >公历</view>
-        <view 
-          class="switch-item {{isLunar ? 'active' : ''}}" 
-          bindtap="onCalendarSwitch"
-        >农历</view>
-      </view>
-
       <!-- 性别选择 -->
-      <view class="calendar-switch">
-        <view 
-          class="switch-item {{gender === 'male' ? 'active' : ''}}" 
-          bindtap="onGenderSwitch"
-          data-gender="male"
-        >男</view>
-        <view 
-          class="switch-item {{gender === 'female' ? 'active' : ''}}" 
-          bindtap="onGenderSwitch"
-          data-gender="female"
-        >女</view>
+      <view class="option-group">
+        <view class="switch-group">
+          <view 
+            class="switch-item {{gender === 'male' ? 'active' : ''}}" 
+            bindtap="onGenderSwitch"
+            data-gender="male"
+          >男</view>
+          <view 
+            class="switch-item {{gender === 'female' ? 'active' : ''}}" 
+            bindtap="onGenderSwitch"
+            data-gender="female"
+          >女</view>
+        </view>
+      </view>
+
+      <!-- 日历类型选择 -->
+      <view class="option-group">
+        <view class="switch-group">
+          <view 
+            class="switch-item {{!isLunar ? 'active' : ''}}" 
+            bindtap="onCalendarSwitch"
+          >公历</view>
+          <view 
+            class="switch-item {{isLunar ? 'active' : ''}}" 
+            bindtap="onCalendarSwitch"
+          >农历</view>
+        </view>
       </view>
     </view>
 
-    <!-- 生日选择 -->
+    <!-- 日期时间选择 -->
     <view class="input-group">
-      <text class="label">出生日期</text>
-      <picker
-        mode="date"
-        value="{{birthday}}"
-        start="1900-01-01"
-        end="2024-12-31"
-        bindchange="onBirthdayChange"
-      >
-        <view class="picker-input {{birthday ? '' : 'placeholder'}}">
-          {{birthday || '请选择出生日期'}}
-        </view>
-      </picker>
-    </view>
-
-    <!-- 时间选择 -->
-    <view class="input-group">
-      <text class="label">出生时间</text>
-      <picker
-        mode="time"
-        value="{{birthTime}}"
-        bindchange="onTimeChange"
-      >
-        <view class="picker-input {{birthTime ? '' : 'placeholder'}}">
-          {{birthTime || '请选择出生时间'}}
-        </view>
-      </picker>
+      <text class="label">出生日期时间</text>
+      <view class="datetime-picker">
+        <picker
+          mode="multiSelector"
+          bindchange="onDateTimeChange"
+          bindcolumnchange="onDateTimeColumnChange"
+          value="{{dateTimeIndex}}"
+          range="{{dateTimeArray}}"
+        >
+          <view class="picker-input {{birthDateTime ? '' : 'placeholder'}}">
+            {{birthDateTime ? (year + '年' + month + '月' + day + '日，' + hour + '时' + minute + '分') : '请选择出生日期时间'}}
+          </view>
+        </picker>
+      </view>
     </view>
 
     <!-- 地区选择 -->
@@ -104,10 +106,27 @@
     <view class="agreement">
       <checkbox checked="{{true}}" color="#d4af7a" disabled />
       <text>已阅读并同意</text>
-      <navigator url="/pages/agreement/index" class="link">《服务协议》</navigator>
+      <text class="link" bindtap="showAgreement">《服务协议》</text>
     </view>
   </view>
 
   <!-- 占位装饰元素 -->
   <view class="decorative-line"></view>
+
+  <!-- 协议弹窗 -->
+  <view class="agreement-modal {{showAgreementModal ? 'show' : ''}}">
+    <view class="modal-mask" bindtap="hideAgreement"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">服务协议</text>
+        <text class="modal-close" bindtap="hideAgreement">×</text>
+      </view>
+      <scroll-view class="modal-body" scroll-y>
+        <text class="agreement-text">{{agreementContent}}</text>
+      </scroll-view>
+      <view class="modal-footer">
+        <button class="confirm-button" bindtap="hideAgreement">我知道了</button>
+      </view>
+    </view>
+  </view>
 </view>

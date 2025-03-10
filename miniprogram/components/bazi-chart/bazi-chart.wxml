@@ -1,0 +1,62 @@
+<!-- components/bazi-chart/bazi-chart.wxml -->
+<view class="bazi-chart">
+  <view class="chart-header">
+    <view class="title">生辰八字</view>
+    <view class="subtitle">{{solarDate}} ({{isLunar ? '农历' : '公历'}})</view>
+  </view>
+
+  <view class="chart-grid">
+    <!-- 表头 -->
+    <view class="grid-row header">
+      <view class="grid-cell">日期</view>
+      <view class="grid-cell">年柱</view>
+      <view class="grid-cell">月柱</view>
+      <view class="grid-cell">日柱</view>
+      <view class="grid-cell">时柱</view>
+    </view>
+
+    <!-- 主星 -->
+    <view class="grid-row">
+      <view class="grid-cell label">主星</view>
+      <view class="grid-cell">{{yearStar}}</view>
+      <view class="grid-cell">{{monthStar}}</view>
+      <view class="grid-cell">{{dayStar}}</view>
+      <view class="grid-cell">{{timeStar}}</view>
+    </view>
+
+    <!-- 天干 -->
+    <view class="grid-row">
+      <view class="grid-cell label">天干</view>
+      <view class="grid-cell">
+        <text class="gan {{yearGanClass}}">{{yearGan}}</text>
+      </view>
+      <view class="grid-cell">
+        <text class="gan {{monthGanClass}}">{{monthGan}}</text>
+      </view>
+      <view class="grid-cell">
+        <text class="gan {{dayGanClass}}">{{dayGan}}</text>
+      </view>
+      <view class="grid-cell">
+        <text class="gan {{timeGanClass}}">{{timeGan}}</text>
+      </view>
+    </view>
+
+    <!-- 地支 -->
+    <view class="grid-row">
+      <view class="grid-cell label">地支</view>
+      <view class="grid-cell">
+        <text class="zhi {{yearZhiClass}}">{{yearZhi}}</text>
+      </view>
+      <view class="grid-cell">
+        <text class="zhi {{monthZhiClass}}">{{monthZhi}}</text>
+      </view>
+      <view class="grid-cell">
+        <text class="zhi {{dayZhiClass}}">{{dayZhi}}</text>
+      </view>
+      <view class="grid-cell">
+        <text class="zhi {{timeZhiClass}}">{{timeZhi}}</text>
+      </view>
+    </view>
+
+  </view>
+</view> 

@@ -7,5 +7,6 @@
   "author": "",
   "license": "",
   "dependencies": {
+    "lunar-typescript": "^1.7.8"
   }
-} 
+}

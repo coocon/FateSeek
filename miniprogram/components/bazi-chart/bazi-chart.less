@@ -1,0 +1,110 @@
+/* components/bazi-chart/bazi-chart.less */
+
+.bazi-chart {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
+
+  .chart-header {
+    text-align: center;
+    margin-bottom: 30rpx;
+
+    .title {
+      font-size: 36rpx;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10rpx;
+    }
+
+    .subtitle {
+      font-size: 24rpx;
+      color: #666;
+    }
+  }
+
+  .chart-grid {
+    border: 2rpx solid #e6e0d5;
+    border-radius: 8rpx;
+    overflow: hidden;
+  }
+
+  .grid-row {
+    display: flex;
+    border-bottom: 2rpx solid #e6e0d5;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &.header {
+      background: #f8f4eb;
+      font-weight: bold;
+    }
+  }
+
+  .grid-cell {
+    flex: 1;
+    padding: 20rpx 10rpx;
+    text-align: center;
+    font-size: 28rpx;
+    border-right: 2rpx solid #e6e0d5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80rpx;
+    
+    &:last-child {
+      border-right: none;
+    }
+
+    &.label {
+      background: #f8f4eb;
+      font-weight: bold;
+      color: #666;
+      flex: 0.8;
+    }
+  }
+
+  .hidden-gan {
+    flex-direction: column;
+    gap: 8rpx;
+  }
+
+  // 五行颜色
+  .gan, .zhi {
+    padding: 4rpx 8rpx;
+    border-radius: 4rpx;
+
+    // 金
+    &.metal {
+      color: #B8860B;
+      background: rgba(184, 134, 11, 0.1);
+    }
+
+    // 木
+    &.wood {
+      color: #228B22;
+      background: rgba(34, 139, 34, 0.1);
+    }
+
+    // 水
+    &.water {
+      color: #4169E1;
+      background: rgba(65, 105, 225, 0.1);
+    }
+
+    // 火
+    &.fire {
+      color: #FF4500;
+      background: rgba(255, 69, 0, 0.1);
+    }
+
+    // 土
+    &.earth {
+      color: #8B4513;
+      background: rgba(139, 69, 19, 0.1);
+    }
+  }
+} 

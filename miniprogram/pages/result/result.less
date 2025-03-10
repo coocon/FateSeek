@@ -1,9 +1,84 @@
 .result-container {
-  padding: 40rpx;
+  padding: 20rpx;
+  background: #f8f9fa;
   min-height: 100vh;
-  background: #f5f2e9;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+
+  .basic-info {
+    background: #fff;
+    border-radius: 12rpx;
+    padding: 24rpx;
+    margin-bottom: 20rpx;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16rpx;
+      flex-wrap: wrap;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .label {
+        color: #666;
+        font-size: 28rpx;
+        margin-right: 16rpx;
+        min-width: 80rpx;
+      }
+
+      .value {
+        color: #333;
+        font-size: 28rpx;
+        margin-right: 32rpx;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .bazi-display {
+    background: #fff;
+    border-radius: 12rpx;
+    padding: 24rpx;
+    margin-bottom: 20rpx;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+
+    .bazi-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16rpx 0;
+    }
+
+    .bazi-cell {
+      flex: 1;
+      text-align: center;
+      padding: 0 8rpx;
+
+      .bazi-label {
+        font-size: 24rpx;
+        color: #666;
+        margin-bottom: 8rpx;
+        display: block;
+      }
+
+      .bazi-value {
+        font-size: 36rpx;
+        color: #333;
+        font-weight: bold;
+        background: #f5f6f7;
+        padding: 12rpx;
+        border-radius: 8rpx;
+
+        text {
+          display: inline-block;
+          margin: 0 4rpx;
+        }
+      }
+    }
+  }
 
   .thinking-section {
     background: #fff;

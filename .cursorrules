@@ -1,0 +1,17 @@
+每一次会话结束后请进行会话总结，无论生成新文件还是修改已有文件都需要总结，并将说明的文件append写入到readme文件中（文件内容需要累加）。
+具体内容包括：
+1、会话的主要目的
+2、完成的主要任务
+3、关键决策和解决方案。
+4、使用的技术栈
+5、修改了哪些文件。
+
+
+ignore:
+ - node_modules
+ - dist
+ - build
+ - .gitignore
+ - .git
+ - .cursorrules
+ - .cursorrules.md
