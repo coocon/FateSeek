@@ -79,9 +79,9 @@ Page({
 
       // 设置默认时间：1990年6月15日 12点30分
       const defaultYear = '1988年';
-      const defaultMonth = '05月';
-      const defaultDay = '11日';
-      const defaultHour = '10时';
+      const defaultMonth = '03月';
+      const defaultDay = '26日';
+      const defaultHour = '08时';
       const defaultMinute = '00分';
 
       const yearIndex = years.findIndex(y => y === defaultYear);
@@ -176,21 +176,22 @@ Page({
     // 地区选择器变化
     onRegionChange(e: WechatMiniprogram.PickerChange) {
       this.setData({
-        region: e.detail.value
+        region: e.detail.value as string[]
       });
     },
 
     // 切换农历/公历
-    onCalendarSwitch() {
-      this.setData({
-        isLunar: !this.data.isLunar
-      });
+    onCalendarSwitch(e: WechatMiniprogram.TouchEvent) {
+        const isLunar = e.currentTarget.dataset.lunar === '1';
+        console.log('isLunar', isLunar);
+        this.setData({ isLunar });
+        // 切换后重新初始化日期选择器
     },
 
     // 切换性别
     onGenderSwitch(e: WechatMiniprogram.TouchEvent) {
-      const gender = e.currentTarget.dataset.gender;
-      if (this.data.gender !== gender) {  // 只在不同值时才更新
+      const gender = e.currentTarget.dataset.gender as 'male' | 'female';
+      if (this.data.gender !== gender) {
         this.setData({ gender });
       }
     },

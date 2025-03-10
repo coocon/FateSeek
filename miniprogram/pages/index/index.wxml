@@ -43,13 +43,15 @@
       <view class="option-group">
         <view class="switch-group">
           <view 
-            class="switch-item {{!isLunar ? 'active' : ''}}" 
-            bindtap="onCalendarSwitch"
-          >公历</view>
-          <view 
             class="switch-item {{isLunar ? 'active' : ''}}" 
             bindtap="onCalendarSwitch"
+            data-lunar="1"
           >农历</view>
+          <view 
+            class="switch-item {{!isLunar ? 'active' : ''}}" 
+            bindtap="onCalendarSwitch"
+            data-lunar="0"
+          >阳历</view>
         </view>
       </view>
     </view>
