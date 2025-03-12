@@ -25,7 +25,7 @@
   },
   "include": [
     "./**/*.ts"
-  ],
+, "miniprogram/utils/lunar.js"  ],
   "exclude": [
     "node_modules"
   ]

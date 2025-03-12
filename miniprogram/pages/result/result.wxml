@@ -81,7 +81,7 @@
       <text class="title">分析结果</text>
     </view>
 
-    <!-- 分析步骤 -->
+    <!-- 分析步骤
     <view class="analysis-steps">
       <block wx:for="{{analysisSteps}}" wx:key="index">
         <view class="step-item {{item ? 'show' : ''}}">
@@ -89,9 +89,7 @@
           <view class="step-content">{{item}}</view>
         </view>
       </block>
-    </view>
-
-    <textarea value="{{content}}"></textarea>
+    </view> -->
     <towxml nodes="{{fullContentMarkdown}}" />
   </view>
 

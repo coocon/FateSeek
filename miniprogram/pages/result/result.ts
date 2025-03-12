@@ -233,17 +233,17 @@ Page<IPageData, IPageInstance>({
           console.log(`时柱: ${bazi.time.gan}${bazi.time.zhi}`);
           console.log('================\n');
           // 添加分析步骤
-          this.setData({
-            analysisSteps: [
-              `1. 基本信息解析完成`,
-              `2. 计算真太阳时：根据经度 ${coord.longitude} 调整时间`,
-              `3. 确定年柱：${bazi.year.gan}${bazi.year.zhi}`,
-              `4. 确定月柱：${bazi.month.gan}${bazi.month.zhi}`,
-              `5. 确定日柱：${bazi.day.gan}${bazi.day.zhi}`,
-              `6. 确定时柱：${bazi.time.gan}${bazi.time.zhi}`,
-              `7. 八字计算完成，开始分析...`
-            ]
-          });
+        //   this.setData({
+        //     analysisSteps: [
+        //       `1. 基本信息解析完成`,
+        //       `2. 计算真太阳时：根据经度 ${coord.longitude} 调整时间`,
+        //       `3. 确定年柱：${bazi.year.gan}${bazi.year.zhi}`,
+        //       `4. 确定月柱：${bazi.month.gan}${bazi.month.zhi}`,
+        //       `5. 确定日柱：${bazi.day.gan}${bazi.day.zhi}`,
+        //       `6. 确定时柱：${bazi.time.gan}${bazi.time.zhi}`,
+        //       `7. 八字计算完成，开始分析...`
+        //     ]
+        //   });
 
           // 在八字信息设置完成后，开始分析
           this.startAnalysis({
