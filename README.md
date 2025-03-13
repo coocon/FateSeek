@@ -133,3 +133,79 @@ miniprogram/
 技术栈：
 - TypeScript
 - 微信小程序框架 
+
+## 2024-03-13 组件拆分优化
+
+### 主要目的
+将result页面的基本信息展示和八字展示区拆分成独立组件，提高代码的可维护性和复用性。
+
+### 完成的主要任务
+1. 创建了`basic-info`组件
+2. 创建了`bazi-display`组件
+3. 修改了主页面使用新组件
+4. 配置了组件的注册
+
+### 关键决策和解决方案
+- 将组件放在`components`目录下，便于管理
+- 使用Component构造器创建组件
+- 通过properties传递数据
+- 保持了原有的样式和功能
+
+### 使用的技术栈
+- 微信小程序原生组件开发
+- TypeScript
+- WXML模板语言
+
+### 修改的文件
+- 新建文件：
+  - `miniprogram/pages/result/components/basic-info/basic-info.wxml`
+  - `miniprogram/pages/result/components/basic-info/basic-info.ts`
+  - `miniprogram/pages/result/components/basic-info/basic-info.json`
+  - `miniprogram/pages/result/components/bazi-display/bazi-display.wxml`
+  - `miniprogram/pages/result/components/bazi-display/bazi-display.ts`
+  - `miniprogram/pages/result/components/bazi-display/bazi-display.json`
+- 修改文件：
+  - `miniprogram/pages/result/result.wxml`
+  - `miniprogram/pages/result/result.json`
+
+## 2024-03-13 组件路径修复
+
+### 主要目的
+修复`towxml`组件路径配置错误，确保组件正确加载。
+
+### 完成的主要任务
+1. 检查了`towxml`组件的实际位置
+2. 修正了`result.json`中的组件路径配置
+
+### 关键决策和解决方案
+- 发现`towxml`组件实际位于`miniprogram/towxml/`目录
+- 将组件路径从`/components/towxml/towxml`修改为`/towxml/towxml`
+
+### 使用的技术栈
+- 微信小程序组件系统
+- JSON配置文件
+
+### 修改的文件
+- `miniprogram/pages/result/result.json` 
+
+## 2024-03-13 样式优化
+
+### 主要目的
+清理`result.less`中的冗余样式，优化样式结构，避免样式冲突。
+
+### 完成的主要任务
+1. 移除了已迁移到组件的样式代码
+2. 保留了页面级别的必要样式
+3. 优化了样式的层级结构
+
+### 关键决策和解决方案
+- 将组件相关的样式完全迁移到组件中
+- 使用`styleIsolation: "apply-shared"`确保样式正确应用
+- 保持页面级别的样式独立
+
+### 使用的技术栈
+- Less 样式预处理器
+- 微信小程序组件系统
+
+### 修改的文件
+- `miniprogram/pages/result/result.less` 

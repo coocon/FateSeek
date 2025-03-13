@@ -9,53 +9,20 @@
       bindtouchstart="handleTouchStart" 
       bindtouchmove="handleTouchMove">
   <!-- 基本信息展示 -->
-  <view class="basic-info">
-    <view class="info-row">
-      <text class="label">姓名：</text>
-      <text class="value">{{params.name}}</text>
-      <text class="label">性别：</text>
-      <text class="value">{{params.gender === 'male' ? '男' : '女'}}</text>
-    </view>
-    <view class="info-row">
-      <text class="label">出生：</text>
-      <text class="value">{{params.birthDateTime}}</text>
-    </view>
-    <view class="info-row">
-      <text class="label">地点：</text>
-      <text class="value">{{params.region[0]}} {{params.region[1]}} {{params.region[2]}}</text>
-    </view>
-  </view>
+  <basic-info 
+    name="{{params.name}}"
+    gender="{{params.gender}}"
+    birthDateTime="{{params.birthDateTime}}"
+    region="{{params.region}}"
+  />
 
   <!-- 八字展示区 -->
-  <view class="bazi-display">
-    <view class="bazi-row">
-      <view class="bazi-cell">
-        <text class="bazi-label">年柱</text>
-        <view class="bazi-value">
-          <text>{{baziInfo.year.gan}}{{baziInfo.year.zhi}}</text>
-        </view>
-      </view>
-      <view class="bazi-cell">
-        <text class="bazi-label">月柱</text>
-        <view class="bazi-value">
-          <text>{{baziInfo.month.gan}}{{baziInfo.month.zhi}}</text>
-        </view>
-      </view>
-      <view class="bazi-cell">
-        <text class="bazi-label">日柱</text>
-        <view class="bazi-value">
-          <text>{{baziInfo.day.gan}}{{baziInfo.day.zhi}}</text>
-        </view>
-      </view>
-      <view class="bazi-cell">
-        <text class="bazi-label">时柱</text>
-        <view class="bazi-value">
-          <text>{{baziInfo.time.gan}}{{baziInfo.time.zhi}}</text>
-        </view>
-      </view>
-    </view>
-  </view>
-
+  <bazi-display 
+    year="{{baziInfo.year}}"
+    month="{{baziInfo.month}}"
+    day="{{baziInfo.day}}"
+    time="{{baziInfo.time}}"
+  />
 
   <!-- 思考过程展示区 -->
   <view class="thinking-section {{showThinking ? 'expanded' : ''}}">

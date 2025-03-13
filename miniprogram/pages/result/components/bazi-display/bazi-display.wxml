@@ -1,0 +1,28 @@
+<view class="bazi-display">
+  <view class="bazi-row">
+    <view class="bazi-cell">
+      <text class="bazi-label">年柱</text>
+      <view class="bazi-value">
+        <text>{{year.gan}}{{year.zhi}}</text>
+      </view>
+    </view>
+    <view class="bazi-cell">
+      <text class="bazi-label">月柱</text>
+      <view class="bazi-value">
+        <text>{{month.gan}}{{month.zhi}}</text>
+      </view>
+    </view>
+    <view class="bazi-cell">
+      <text class="bazi-label">日柱</text>
+      <view class="bazi-value">
+        <text>{{day.gan}}{{day.zhi}}</text>
+      </view>
+    </view>
+    <view class="bazi-cell">
+      <text class="bazi-label">时柱</text>
+      <view class="bazi-value">
+        <text>{{time.gan}}{{time.zhi}}</text>
+      </view>
+    </view>
+  </view>
+</view> 
