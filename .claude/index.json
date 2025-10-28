@@ -1,0 +1,142 @@
+{
+  "scan_time": "2025-10-28T00:00:00.000Z",
+  "project_info": {
+    "name": "FateSeek",
+    "type": "微信小程序",
+    "description": "生辰八字测算小程序",
+    "language": "TypeScript",
+    "framework": "微信小程序原生框架"
+  },
+  "scan_coverage": {
+    "total_files_scanned": 45,
+    "estimated_total_files": 50,
+    "coverage_percentage": 90,
+    "modules_covered": 10,
+    "total_modules": 10
+  },
+  "modules": [
+    {
+      "path": "miniprogram/pages/index",
+      "type": "页面",
+      "entry": "index.ts",
+      "description": "用户信息输入页面",
+      "key_files": ["index.ts", "index.wxml", "index.less", "index.json"],
+      "functions": ["表单收集", "日期时间选择", "地区选择", "用户协议"],
+      "dependencies": ["../../utils/request", "../../config/env", "../../data/agreement"]
+    },
+    {
+      "path": "miniprogram/pages/result",
+      "type": "页面",
+      "entry": "result.ts",
+      "description": "八字分析结果展示",
+      "key_files": ["result.ts", "result.wxml", "result.less", "result.json"],
+      "functions": ["AI分析", "八字图表", "流式响应", "Markdown渲染"],
+      "dependencies": ["../../utils/request", "../../utils/util", "../../config/env"],
+      "components": ["bazi-chart", "basic-info", "bazi-display", "towxml"]
+    },
+    {
+      "path": "miniprogram/pages/learning",
+      "type": "页面",
+      "entry": "learning.ts",
+      "description": "命理知识学习页面",
+      "key_files": ["learning.ts", "learning.wxml", "learning.less", "learning.json"],
+      "functions": ["文章列表", "知识普及"],
+      "status": "基础功能"
+    },
+    {
+      "path": "miniprogram/pages/profile",
+      "type": "页面",
+      "entry": "profile.ts",
+      "description": "个人中心页面",
+      "key_files": ["profile.ts", "profile.wxml", "profile.less", "profile.json"],
+      "functions": ["用户信息管理"],
+      "status": "基础功能"
+    },
+    {
+      "path": "miniprogram/components/bazi-chart",
+      "type": "组件",
+      "entry": "bazi-chart.ts",
+      "description": "八字数据可视化组件",
+      "key_files": ["bazi-chart.ts", "bazi-chart.wxml", "bazi-chart.less", "bazi-chart.json"],
+      "functions": ["四柱展示", "五行标注", "颜色分类"],
+      "dependencies": ["../../utils/util"]
+    },
+    {
+      "path": "miniprogram/components/navigation-bar",
+      "type": "组件",
+      "entry": "navigation-bar.ts",
+      "description": "导航栏组件",
+      "key_files": ["navigation-bar.ts", "navigation-bar.wxml", "navigation-bar.less", "navigation-bar.json"],
+      "functions": ["页面导航"]
+    },
+    {
+      "path": "miniprogram/utils",
+      "type": "工具模块",
+      "entry": "util.ts",
+      "description": "核心工具函数",
+      "key_files": ["util.ts", "request.ts", "api.ts", "lunar.js"],
+      "functions": ["八字计算", "网络请求", "API封装", "农历转换"],
+      "dependencies": ["lunar-typescript"]
+    },
+    {
+      "path": "miniprogram/config",
+      "type": "配置模块",
+      "entry": "env.ts",
+      "description": "环境配置",
+      "key_files": ["env.ts"],
+      "functions": ["API配置", "模型参数", "环境变量"]
+    },
+    {
+      "path": "miniprogram/data",
+      "type": "数据模块",
+      "entry": "agreement.ts",
+      "description": "静态数据",
+      "key_files": ["agreement.ts"],
+      "functions": ["用户协议", "法律条款"]
+    },
+    {
+      "path": "miniprogram/towxml",
+      "type": "第三方组件",
+      "entry": "index.js",
+      "description": "Markdown渲染组件",
+      "key_files": ["index.js", "towxml.js", "towxml.wxml"],
+      "functions": ["Markdown解析", "富文本渲染"]
+    }
+  ],
+  "architecture": {
+    "pattern": "小程序页面+组件架构",
+    "api_integration": {
+      "provider": "硅基流动",
+      "model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+      "features": ["流式响应", "八字分析"]
+    },
+    "core_libraries": {
+      "lunar-typescript": "农历计算和八字转换",
+      "towxml": "Markdown渲染",
+      "miniprogram-api-typings": "微信小程序类型定义"
+    }
+  },
+  "gaps": {
+    "missing_tests": ["所有模块均缺少单元测试"],
+    "missing_docs": ["模块级CLAUDE.md文档"],
+    "uncovered_areas": ["错误处理机制", "性能优化策略", "安全性考虑"],
+    "suggested_improvements": [
+      "添加单元测试框架",
+      "完善错误处理机制",
+      "优化API调用的重试逻辑",
+      "添加性能监控"
+    ]
+  },
+  "ignored_items": {
+    "directories": ["node_modules"],
+    "files": [".gitignore", ".cursorrules"],
+    "reasons": ["依赖包目录", "配置文件"]
+  },
+  "truncated": false,
+  "next_scan_suggestions": [
+    "完善模块级CLAUDE.md文档",
+    "添加单元测试和集成测试",
+    "优化API错误处理机制",
+    "完善性能监控和日志记录"
+  ]
+}
