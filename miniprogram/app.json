@@ -4,7 +4,10 @@
     "pages/logs/logs",
     "pages/result/result",
     "pages/learning/learning",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/history/history",
+    "pages/favorites/favorites",
+    "pages/vip/vip"
   ],
   "window": {
     "navigationBarTextStyle": "black",

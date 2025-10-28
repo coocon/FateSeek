@@ -4,6 +4,7 @@
   min-height: 100vh;
   padding-top: 200rpx;
 
+  // 已登录状态
   .user-info {
     background: #fff;
     border-radius: 16rpx;
@@ -15,7 +16,7 @@
       width: 128rpx;
       height: 128rpx;
       margin: 0 auto 20rpx;
-      
+
       .avatar {
         width: 100%;
         height: 100%;
@@ -27,6 +28,71 @@
       font-size: 32rpx;
       color: #333;
       font-weight: bold;
+      margin-bottom: 10rpx;
+    }
+
+    .user-id {
+      font-size: 24rpx;
+      color: #999;
+    }
+  }
+
+  // 未登录状态
+  .login-section {
+    background: #fff;
+    border-radius: 16rpx;
+    padding: 60rpx 40rpx;
+    text-align: center;
+    margin-bottom: 30rpx;
+
+    .login-avatar {
+      width: 128rpx;
+      height: 128rpx;
+      margin: 0 auto 30rpx;
+
+      .avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        opacity: 0.6;
+      }
+    }
+
+    .login-title {
+      font-size: 36rpx;
+      color: #333;
+      font-weight: bold;
+      margin-bottom: 10rpx;
+    }
+
+    .login-desc {
+      font-size: 26rpx;
+      color: #666;
+      margin-bottom: 40rpx;
+      line-height: 1.5;
+    }
+
+    .login-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 50rpx;
+      padding: 20rpx 60rpx;
+      font-size: 28rpx;
+      font-weight: bold;
+      box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.3);
+      transition: all 0.3s ease;
+
+      &:not([disabled]):active {
+        transform: scale(0.95);
+        box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.3);
+      }
+
+      &[disabled] {
+        opacity: 0.6;
+        background: #ccc;
+        box-shadow: none;
+      }
     }
   }
 
@@ -47,8 +113,19 @@
       }
 
       .menu-title {
-        font-size: 30rpx;
-        color: #333;
+        display: flex;
+        flex-direction: column;
+        gap: 8rpx;
+
+        .menu-text {
+          font-size: 30rpx;
+          color: #333;
+        }
+
+        .menu-desc {
+          font-size: 24rpx;
+          color: #999;
+        }
       }
 
       .menu-arrow {

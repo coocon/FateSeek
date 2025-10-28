@@ -46,6 +46,12 @@
   <view class="analysis-content">
     <view class="header sticky">
       <text class="title">分析结果</text>
+      <view class="header-actions">
+        <button class="favorite-btn" bindtap="saveToFavorites" disabled="{{analysisCompleted ? false : true}}">
+          <text class="favorite-icon">⭐</text>
+          <text class="favorite-text">收藏完整结果</text>
+        </button>
+      </view>
     </view>
 
     <!-- 分析步骤
@@ -58,6 +64,54 @@
       </block>
     </view> -->
     <towxml nodes="{{fullContentMarkdown}}" />
+  </view>
+
+  <!-- VIP高级分析功能区 -->
+  <view class="vip-section">
+    <view class="vip-header">
+      <text class="vip-title">🌟 VIP学习内容</text>
+      <text class="vip-desc">文化学习，知识普及</text>
+    </view>
+
+    <!-- VIP功能列表 -->
+    <view class="vip-features">
+      <view
+        class="vip-feature {{vipFeatures.includes(item.id) ? 'available' : 'locked'}}"
+        wx:for="{{vipFeatureList}}"
+        wx:key="id"
+        bindtap="onVIPFeatureTap"
+        data-feature="{{item}}"
+      >
+        <view class="feature-icon">
+          <text class="icon">{{item.icon}}</text>
+          <view class="lock-icon" wx:if="{{!vipFeatures.includes(item.id)}}">🔒</view>
+        </view>
+        <view class="feature-content">
+          <text class="feature-name">{{item.name}}</text>
+          <text class="feature-desc">{{item.description}}</text>
+        </view>
+        <view class="feature-action">
+          <text class="action-text">{{vipFeatures.includes(item.id) ? '查看' : '升级VIP'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- VIP升级提示 -->
+    <view class="vip-upgrade-banner" wx:if="{{!membershipInfo.isVIP && !membershipInfo.isTrial}}">
+      <view class="banner-content">
+        <text class="banner-title">解锁全部学习内容</text>
+        <text class="banner-desc">传统文化学习、职业素养提升、中医文化学习、积极心理健康教育</text>
+        <button class="banner-btn" bindtap="navigateToVIP">开始学习</button>
+      </view>
+    </view>
+
+    <!-- 试用期提示 -->
+    <view class="trial-banner" wx:if="{{membershipInfo.isTrial}}">
+      <view class="banner-content">
+        <text class="banner-title">🎁 学习体验中</text>
+        <text class="banner-desc">剩余{{membershipInfo.remainingDays}}天，体验全部学习内容</text>
+      </view>
+    </view>
   </view>
 
   <!-- 添加免责声明 -->

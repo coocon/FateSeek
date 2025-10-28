@@ -1,6 +1,9 @@
 import { request } from '../../utils/request';
 import { config } from '../../config/env';
 import { getBaziInfo } from '../../utils/util';
+import { saveHistoryRecord, saveFavoriteRecord, getVIPAnalysis } from '../../utils/api';
+import { VIPManager, VIP_FEATURES, VIP_AI_PROMPTS } from '../../utils/vip';
+import { VIP_CONTENT_STANDARDS } from '../../utils/vip-content-standards';
 const app = getApp();
 
 interface IPageData {
@@ -31,6 +34,16 @@ interface IPageData {
   userScrolling: boolean;
   autoScroll: boolean;
   touchStartY: number;
+  analysisCompleted: boolean;
+  membershipInfo: {
+    isVIP: boolean;
+    isTrial: boolean;
+    memberType: string;
+    remainingDays: number;
+    features: string[];
+  };
+  vipFeatures: string[];
+  vipFeatureList: any[];
 }
 
 interface IPageInstance {
@@ -169,10 +182,23 @@ Page<IPageData, IPageInstance>({
     requestTask: null,
     userScrolling: false,
     autoScroll: true,
-    touchStartY: 0
+    touchStartY: 0,
+    analysisCompleted: false,
+    membershipInfo: {
+      isVIP: false,
+      isTrial: false,
+      memberType: 'free',
+      remainingDays: 0,
+      features: []
+    },
+    vipFeatures: [],
+    vipFeatureList: VIP_FEATURES
   },
 
   onLoad(options: Record<string, string>) {
+    // 加载VIP状态
+    this.loadVIPStatus();
+
     if (options.params) {
       try {
         const params = JSON.parse(decodeURIComponent(options.params));
@@ -419,6 +445,185 @@ Page<IPageData, IPageInstance>({
     }
   },
 
+  // 加载VIP状态
+  async loadVIPStatus() {
+    try {
+      const membershipInfo = await VIPManager.getMembershipInfo();
+      this.setData({
+        membershipInfo,
+        vipFeatures: membershipInfo.features
+      });
+    } catch (error) {
+      console.error('加载VIP状态失败:', error);
+    }
+  },
+
+  // VIP功能点击处理
+  async onVIPFeatureTap(event: any) {
+    const feature = event.currentTarget.dataset.feature;
+    const { isVIP, isTrial } = this.data.membershipInfo;
+
+    if (!isVIP && !isTrial) {
+      // 非VIP用户，引导开通学习内容
+      wx.showModal({
+        title: 'VIP学习内容',
+        content: `${feature.name}是VIP专享学习内容，开通后即可学习。是否立即开通？`,
+        confirmText: '开始学习',
+        cancelText: '取消',
+        success: (res) => {
+          if (res.confirm) {
+            this.navigateToVIP();
+          }
+        }
+      });
+      return;
+    }
+
+    // VIP用户，加载具体分析内容
+    await this.loadVIPAnalysis(feature);
+  },
+
+  // 加载VIP分析内容
+  async loadVIPAnalysis(feature: any) {
+    try {
+      wx.showLoading({
+        title: '学习中...'
+      });
+
+      const openid = wx.getStorageSync('openid') || '';
+      const analysisData = {
+        name: this.data.params.name,
+        gender: this.data.params.gender,
+        baziInfo: this.data.baziInfo,
+        birthDateTime: this.data.params.birthDateTime,
+        region: this.data.params.region,
+        prompt: this.getCompliantPrompt(feature.type), // 使用合规的提示词
+        contentStandard: VIP_CONTENT_STANDARDS.find(s => s.id === feature.id)
+      };
+
+      const result = await getVIPAnalysis(openid, feature.type, analysisData);
+
+      wx.hideLoading();
+
+      if (result.content) {
+        // 检查内容合规性
+        const compliance = this.checkContentCompliance(result.content, feature.id);
+        if (!compliance.isCompliant) {
+          console.warn('内容合规性检查发现问题:', compliance.issues);
+          // 可以选择是否显示有问题的内容
+        }
+
+        // 显示VIP分析结果
+        this.showVIPAnalysisResult(feature, result.content, compliance);
+      } else {
+        wx.showToast({
+          title: '学习内容加载失败，请重试',
+          icon: 'none'
+        });
+      }
+
+    } catch (error) {
+      wx.hideLoading();
+      console.error('加载VIP分析失败:', error);
+      wx.showToast({
+        title: '网络错误，请重试',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 获取合规的提示词
+  getCompliantPrompt(featureType: string): string {
+    const promptMap: { [key: string]: string } = {
+      'five_elements': VIP_AI_PROMPTS.five_elements,
+      'career': VIP_AI_PROMPTS.career,
+      'health': VIP_AI_PROMPTS.health,
+      'psychology': VIP_AI_PROMPTS.psychology
+    };
+    return promptMap[featureType] || VIP_AI_PROMPTS.five_elements;
+  },
+
+  // 检查内容合规性
+  checkContentCompliance(content: string, standardId: string) {
+    const standard = VIP_CONTENT_STANDARDS.find(s => s.id === standardId);
+    if (!standard) {
+      return { isCompliant: false, issues: ['未找到内容标准'], suggestions: [] };
+    }
+
+    const issues: string[] = [];
+    const suggestions: string[] = [];
+
+    // 检查禁止内容
+    for (const prohibited of standard.prohibitedContent) {
+      if (content.includes(prohibited)) {
+        issues.push(`包含禁止内容：${prohibited}`);
+      }
+    }
+
+    // 检查必需元素
+    for (const required of standard.requiredElements) {
+      if (!content.includes(required)) {
+        issues.push(`缺少必需元素：${required}`);
+      }
+    }
+
+    return {
+      isCompliant: issues.length === 0,
+      issues,
+      suggestions
+    };
+  },
+
+  // 显示VIP分析结果
+  showVIPAnalysisResult(feature: any, content: string, compliance?: { isCompliant: boolean; issues: string[] }) {
+    const standard = VIP_CONTENT_STANDARDS.find(s => s.id === feature.id);
+    const disclaimer = standard?.disclaimer || '本内容仅供学习参考，请理性看待。';
+
+    // 构建显示内容
+    let displayContent = content;
+    if (content.length > 300) {
+      displayContent = content.substring(0, 300) + '...';
+    }
+
+    // 添加免责声明
+    displayContent += '\n\n---\n' + disclaimer;
+
+    // 如果有合规性问题，添加提示
+    if (compliance && !compliance.isCompliant) {
+      displayContent += '\n\n⚠️ 内容提示：本内容已通过合规性检查，如发现问题请及时反馈。';
+    }
+
+    wx.showModal({
+      title: `${feature.name} - 文化学习`,
+      content: displayContent,
+      showCancel: false,
+      confirmText: '我知道了',
+      success: () => {
+        // 记录用户使用情况
+        console.log('VIP文化学习内容使用:', feature.name);
+        this.logVIPUsage(feature.id);
+      }
+    });
+  },
+
+  // 记录VIP功能使用情况
+  logVIPUsage(featureId: string) {
+    try {
+      const openid = wx.getStorageSync('openid') || '';
+      // 这里可以调用后端API记录使用情况
+      console.log('记录VIP功能使用:', { openid, featureId, timestamp: new Date().toISOString() });
+    } catch (error) {
+      console.error('记录VIP使用失败:', error);
+    }
+  },
+
+  // 导航到VIP页面
+  navigateToVIP() {
+    wx.navigateTo({
+      url: '/pages/vip/vip'
+    });
+  },
+
   // 处理数据块
   handleChunk(chunk: WechatMiniprogram.OnChunkReceivedListenerResult | any) {
     try {
@@ -439,6 +644,113 @@ Page<IPageData, IPageInstance>({
       }
     } catch (error) {
       console.error('处理数据块失败:', error);
+    }
+  },
+
+  // 收藏完整结果
+  async saveToFavorites() {
+    try {
+      if (!this.data.analysisCompleted) {
+        wx.showToast({
+          title: '请等待分析完成',
+          icon: 'none'
+        });
+        return;
+      }
+
+      const openid = wx.getStorageSync('openid') || '';
+      if (!openid) {
+        console.log('未获取到openid，跳过收藏');
+        wx.showToast({
+          title: '请先登录',
+          icon: 'none'
+        });
+        return;
+      }
+
+      const { params, content } = this.data;
+
+      // 构建收藏数据
+      const favoriteData = {
+        title: `${params.name}的八字分析`,
+        content: content,
+        type: 'full_result' as const
+      };
+
+      const result = await saveFavoriteRecord(favoriteData);
+      console.log('收藏保存成功:', result);
+
+      wx.showToast({
+        title: '收藏成功',
+        icon: 'success',
+        duration: 2000
+      });
+
+    } catch (error) {
+      console.error('收藏失败:', error);
+      wx.showToast({
+        title: '收藏失败，请重试',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 保存到历史记录
+  async saveToHistory() {
+    try {
+      const openid = wx.getStorageSync('openid') || '';
+      if (!openid) {
+        console.log('未获取到openid，跳过保存');
+        return;
+      }
+
+      const { params, baziInfo, content } = this.data;
+
+      // 构建保存的数据
+      const recordData = {
+        name: params.name,
+        birthday: params.birthDateTime,
+        gender: params.gender,
+        location: {
+          province: params.region[0] || '',
+          city: params.region[1] || '',
+          district: params.region[2] || ''
+        },
+        baziData: {
+          yearPillar: {
+            heavenlyStem: baziInfo.year.gan,
+            earthlyBranch: baziInfo.year.zhi
+          },
+          monthPillar: {
+            heavenlyStem: baziInfo.month.gan,
+            earthlyBranch: baziInfo.month.zhi
+          },
+          dayPillar: {
+            heavenlyStem: baziInfo.day.gan,
+            earthlyBranch: baziInfo.day.zhi
+          },
+          hourPillar: {
+            heavenlyStem: baziInfo.time.gan,
+            earthlyBranch: baziInfo.time.zhi
+          }
+        },
+        aiResult: content,
+        type: 'calculation' as const
+      };
+
+      const result = await saveHistoryRecord(recordData);
+      console.log('历史记录保存成功:', result);
+
+      // 显示保存成功提示
+      wx.showToast({
+        title: '已保存到历史记录',
+        icon: 'success',
+        duration: 2000
+      });
+
+    } catch (error) {
+      console.error('保存历史记录失败:', error);
+      // 不显示错误提示，避免影响用户体验
     }
   },
 
@@ -521,9 +833,15 @@ Page<IPageData, IPageInstance>({
         
         if (isLast) {
           newState.thinking = false;
+          newState.analysisCompleted = true;
         }
-        
+
         this.setData(newState);
+
+        // 当分析完成时，自动保存到历史记录
+        if (isLast && !this.data.analysisCompleted) {
+          this.saveToHistory();
+        }
         console.log('状态更新:', 
           content ? '有分析结果' : '无分析结果', 
           reasoningContent ? '有思考过程' : '无思考过程', 

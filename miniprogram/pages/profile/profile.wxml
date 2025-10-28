@@ -6,22 +6,57 @@
 </navigation-bar>
 
 <view class="profile-container">
-  <view class="user-info">
+  <!-- 已登录状态 -->
+  <view class="user-info" wx:if="{{isLoggedIn}}">
     <view class="avatar-wrapper">
       <image class="avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" />
     </view>
-    <view class="nickname">{{userInfo.nickName || '未登录'}}</view>
+    <view class="nickname">{{userInfo.nickName}}</view>
+    <view class="user-id">ID: {{userInfo.id || userInfo.openid}}</view>
+  </view>
+
+  <!-- 未登录状态 -->
+  <view class="login-section" wx:else>
+    <view class="login-avatar">
+      <image class="avatar" src="/images/default-avatar.png" />
+    </view>
+    <view class="login-title">未登录</view>
+    <view class="login-desc">登录后可以使用完整功能</view>
+    <button class="login-btn" bindtap="handleLogin" disabled="{{isLoading}}">
+      <text wx:if="{{!isLoading}}">微信快速登录</text>
+      <text wx:else>登录中...</text>
+    </button>
   </view>
 
   <view class="menu-list">
-    <!-- <view class="menu-item">
-      <view class="menu-title">我的收藏</view>
+    <view class="menu-item" bindtap="navigateToHistory">
+      <view class="menu-title">
+        <text class="menu-text">历史记录</text>
+        <text class="menu-desc">查看测算记录</text>
+      </view>
       <view class="menu-arrow">></view>
     </view>
-    <view class="menu-item">
-      <view class="menu-title">使用记录</view>
+    <view class="menu-item" bindtap="navigateToFavorites">
+      <view class="menu-title">
+        <text class="menu-text">我的收藏</text>
+        <text class="menu-desc">管理收藏内容</text>
+      </view>
       <view class="menu-arrow">></view>
-    </view> -->
+    </view>
+    <view class="menu-item" bindtap="navigateToVIP">
+      <view class="menu-title">
+        <text class="menu-text">VIP会员</text>
+        <text class="menu-desc">高级分析功能</text>
+      </view>
+      <view class="menu-arrow">></view>
+    </view>
+    <view class="menu-item" bindtap="handleLogout" wx:if="{{isLoggedIn}}">
+      <view class="menu-title">
+        <text class="menu-text">退出登录</text>
+        <text class="menu-desc">退出当前账号</text>
+      </view>
+      <view class="menu-arrow">></view>
+    </view>
     <view class="menu-item">
       <view class="menu-title">关于我们</view>
       <view class="menu-arrow">></view>

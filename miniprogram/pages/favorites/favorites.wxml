@@ -1,0 +1,112 @@
+<navigation-bar
+  title="我的收藏"
+  back="{{true}}"
+  color="black"
+  background="#FFF">
+</navigation-bar>
+
+<view class="favorites-container">
+  <!-- 页面标题和统计 -->
+  <view class="header">
+    <view class="title">我的收藏</view>
+    <view class="stats">
+      <text class="count">{{totalCount}}条收藏</text>
+      <text class="limit">（最多保存30条）</text>
+    </view>
+  </view>
+
+  <!-- 筛选标签 -->
+  <view class="filter-tabs">
+    <view
+      class="filter-tab {{filterType === 'all' ? 'active' : ''}}"
+      bindtap="onFilterChange"
+      data-type="all"
+    >
+      <text>全部</text>
+    </view>
+    <view
+      class="filter-tab {{filterType === 'full_result' ? 'active' : ''}}"
+      bindtap="onFilterChange"
+      data-type="full_result"
+    >
+      <text>完整结果</text>
+    </view>
+    <view
+      class="filter-tab {{filterType === 'paragraph' ? 'active' : ''}}"
+      bindtap="onFilterChange"
+      data-type="paragraph"
+    >
+      <text>段落收藏</text>
+    </view>
+  </view>
+
+  <!-- 收藏列表 -->
+  <view class="favorites-list" wx:if="{{favorites.length > 0}}">
+    <view
+      class="favorite-item"
+      wx:for="{{favorites}}"
+      wx:key="id"
+      bindtap="onFavoriteTap"
+      data-id="{{item.id}}"
+    >
+      <!-- 收藏类型标签 -->
+      <view class="favorite-header">
+        <view class="favorite-info">
+          <view class="title">{{item.title}}</view>
+          <view class="type-badge {{item.type === 'full_result' ? 'full-result' : 'paragraph'}}">
+            <text>{{item.type === 'full_result' ? '完整结果' : '段落'}}</text>
+          </view>
+        </view>
+        <view class="favorite-actions" catchtap="onDeleteFavorite" data-id="{{item.id}}">
+          <text class="delete-btn">删除</text>
+        </view>
+      </view>
+
+      <!-- 内容预览 -->
+      <view class="content-preview">
+        <text class="preview-text">{{item.content.substring(0, 150)}}{{item.content.length > 150 ? '...' : ''}}</text>
+      </view>
+
+      <!-- 时间戳 -->
+      <view class="favorite-footer">
+        <text class="timestamp">{{item.createdAtFormatted}}</text>
+        <text class="view-detail">查看详情 ></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{favorites.length === 0 && !loading}}">
+    <image class="empty-icon" src="/images/empty-favorites.png" mode="aspectFit"></image>
+    <text class="empty-text">暂无收藏内容</text>
+    <text class="empty-desc">在测算结果页面可以收藏重要内容</text>
+    <button class="empty-action" bindtap="navigateToIndex">开始测算</button>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-more" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 没有更多数据 -->
+  <view class="no-more" wx:if="{{!hasMore && favorites.length > 0}}">
+    <text class="no-more-text">没有更多收藏了</text>
+  </view>
+
+  <!-- 删除确认弹窗 -->
+  <view class="delete-modal" wx:if="{{showDeleteConfirm}}">
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">确认删除</text>
+      </view>
+      <view class="modal-body">
+        <text class="modal-text">确定要删除这条收藏吗？删除后无法恢复。</text>
+      </view>
+      <view class="modal-footer">
+        <button class="modal-btn cancel" bindtap="cancelDelete">取消</button>
+        <button class="modal-btn confirm" bindtap="confirmDelete">删除</button>
+      </view>
+    </view>
+    <view class="modal-mask" bindtap="cancelDelete"></view>
+  </view>
+</view>

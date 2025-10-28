@@ -1,0 +1,15 @@
+https://express-bqn8-195847-5-1342530313.sh.run.tcloudbase.com
+
+wx.cloud.callContainer({
+  "config": {
+    "env": "prod-8gsdy8r72a4d286b"
+  },
+  "path": "/api/count",
+  "header": {
+    "X-WX-SERVICE": "express-bqn8"
+  },
+  "method": "POST",
+  "data": {
+    "action": "inc"
+  }
+})

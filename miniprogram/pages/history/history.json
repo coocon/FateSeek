@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "历史记录",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
+  "usingComponents": {
+    "navigation-bar": "../../components/navigation-bar/navigation-bar",
+    "bazi-chart": "../../components/bazi-chart/bazi-chart"
+  }
+}

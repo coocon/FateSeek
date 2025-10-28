@@ -1,0 +1,437 @@
+.vip-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20rpx;
+  padding-top: 200rpx;
+}
+
+.membership-card {
+  background: white;
+  border-radius: 24rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+
+  &.vip-active {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border: 2rpx solid #d4af7a;
+  }
+
+  &.free-user {
+    background: white;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30rpx;
+
+    .user-avatar {
+      display: flex;
+      align-items: center;
+      gap: 20rpx;
+
+      .crown-icon {
+        width: 48rpx;
+        height: 48rpx;
+      }
+
+      .membership-type {
+        font-size: 32rpx;
+        font-weight: bold;
+        color: #333;
+      }
+    }
+
+    .membership-info {
+      text-align: right;
+
+      .member-type-text {
+        font-size: 28rpx;
+        color: #666;
+        display: block;
+        margin-bottom: 8rpx;
+      }
+
+      .remaining-days {
+        font-size: 24rpx;
+        color: #52c41a;
+        background: #f6ffed;
+        padding: 4rpx 12rpx;
+        border-radius: 12rpx;
+      }
+
+      .expired-text {
+        font-size: 24rpx;
+        color: #ff4d4f;
+        background: #fff2f0;
+        padding: 4rpx 12rpx;
+        border-radius: 12rpx;
+      }
+    }
+  }
+
+  .card-body {
+    .status-description {
+      font-size: 28rpx;
+      color: #666;
+      line-height: 1.5;
+    }
+  }
+}
+
+.trial-banner {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+
+  .trial-content {
+    display: flex;
+    align-items: center;
+    gap: 20rpx;
+
+    .trial-icon {
+      font-size: 48rpx;
+    }
+
+    .trial-info {
+      flex: 1;
+
+      .trial-title {
+        font-size: 32rpx;
+        font-weight: bold;
+        color: #333;
+        display: block;
+        margin-bottom: 8rpx;
+      }
+
+      .trial-desc {
+        font-size: 24rpx;
+        color: #666;
+      }
+    }
+
+    .trial-btn {
+      background: white;
+      color: #ff4d4f;
+      border: none;
+      border-radius: 50rpx;
+      padding: 16rpx 32rpx;
+      font-size: 26rpx;
+      font-weight: bold;
+      box-shadow: 0 4rpx 16rpx rgba(255, 77, 79, 0.3);
+    }
+  }
+}
+
+.features-section, .products-section, .management-section {
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+
+  .section-header {
+    margin-bottom: 30rpx;
+    text-align: center;
+
+    .section-title {
+      font-size: 36rpx;
+      font-weight: bold;
+      color: #333;
+      display: block;
+      margin-bottom: 10rpx;
+    }
+
+    .section-desc {
+      font-size: 24rpx;
+      color: #999;
+    }
+  }
+}
+
+.features-list {
+  .feature-item {
+    display: flex;
+    align-items: center;
+    padding: 30rpx 0;
+    border-bottom: 1rpx solid #f0f0f0;
+    transition: all 0.3s ease;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &.available {
+      .feature-icon {
+        .icon {
+          opacity: 1;
+        }
+      }
+    }
+
+    &.locked {
+      opacity: 0.7;
+    }
+
+    .feature-icon {
+      width: 80rpx;
+      height: 80rpx;
+      background: #f8f9fa;
+      border-radius: 16rpx;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 24rpx;
+      position: relative;
+
+      .icon {
+        font-size: 36rpx;
+        opacity: 0.5;
+      }
+
+      .lock-icon {
+        position: absolute;
+        top: -8rpx;
+        right: -8rpx;
+        font-size: 20rpx;
+      }
+    }
+
+    .feature-content {
+      flex: 1;
+
+      .feature-name {
+        font-size: 30rpx;
+        font-weight: bold;
+        color: #333;
+        display: block;
+        margin-bottom: 8rpx;
+      }
+
+      .feature-desc {
+        font-size: 24rpx;
+        color: #666;
+        line-height: 1.4;
+      }
+    }
+
+    .feature-status {
+      .status-text {
+        font-size: 24rpx;
+        padding: 6rpx 16rpx;
+        border-radius: 12rpx;
+
+        .available & {
+          background: #f6ffed;
+          color: #52c41a;
+        }
+
+        .locked & {
+          background: #fff7e6;
+          color: #fa8c16;
+        }
+      }
+    }
+  }
+}
+
+.products-list {
+  .product-item {
+    border: 2rpx solid #f0f0f0;
+    border-radius: 16rpx;
+    padding: 30rpx;
+    margin-bottom: 20rpx;
+    transition: all 0.3s ease;
+    position: relative;
+
+    &.selected {
+      border-color: #1890ff;
+      background: #f0f8ff;
+    }
+
+    .product-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20rpx;
+
+      .product-name {
+        font-size: 32rpx;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .product-price {
+        .price-symbol {
+          font-size: 24rpx;
+          color: #ff4d4f;
+        }
+
+        .price-value {
+          font-size: 36rpx;
+          font-weight: bold;
+          color: #ff4d4f;
+        }
+      }
+    }
+
+    .product-desc {
+      font-size: 26rpx;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .product-badge {
+      position: absolute;
+      top: -10rpx;
+      right: 20rpx;
+      background: #ff4d4f;
+      color: white;
+      font-size: 20rpx;
+      padding: 4rpx 12rpx;
+      border-radius: 8rpx;
+    }
+  }
+}
+
+.upgrade-btn, .management-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  color: white;
+  border: none;
+  border-radius: 50rpx;
+  padding: 24rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  box-shadow: 0 8rpx 24rpx rgba(24, 144, 255, 0.3);
+  margin-top: 20rpx;
+}
+
+.management-btn {
+  background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+  box-shadow: 0 8rpx 24rpx rgba(82, 196, 26, 0.3);
+}
+
+.payment-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .modal-content {
+    background: white;
+    border-radius: 24rpx;
+    width: 85%;
+    max-width: 600rpx;
+    z-index: 10;
+    overflow: hidden;
+
+    .modal-header {
+      padding: 40rpx 30rpx 20rpx;
+      text-align: center;
+      border-bottom: 1rpx solid #f0f0f0;
+
+      .modal-title {
+        font-size: 36rpx;
+        font-weight: bold;
+        color: #333;
+      }
+    }
+
+    .modal-body {
+      padding: 40rpx 30rpx;
+
+      .product-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20rpx;
+
+        .product-name {
+          font-size: 32rpx;
+          font-weight: bold;
+          color: #333;
+        }
+
+        .product-price {
+          .price-symbol {
+            font-size: 24rpx;
+            color: #ff4d4f;
+          }
+
+          .price-value {
+            font-size: 36rpx;
+            font-weight: bold;
+            color: #ff4d4f;
+          }
+        }
+      }
+
+      .product-desc {
+        font-size: 26rpx;
+        color: #666;
+        line-height: 1.5;
+      }
+    }
+
+    .modal-footer {
+      display: flex;
+      border-top: 1rpx solid #f0f0f0;
+
+      .modal-btn {
+        flex: 1;
+        padding: 30rpx;
+        border: none;
+        background: none;
+        font-size: 32rpx;
+
+        &.cancel {
+          color: #666;
+          border-right: 1rpx solid #f0f0f0;
+        }
+
+        &.confirm {
+          color: #1890ff;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+  .modal-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+  }
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+
+  .loading-text {
+    font-size: 28rpx;
+    color: #666;
+  }
+}

@@ -1,0 +1,150 @@
+<navigation-bar
+  title="VIP会员"
+  back="{{true}}"
+  color="black"
+  background="#FFF">
+</navigation-bar>
+
+<view class="vip-container">
+  <!-- 用户会员状态卡片 -->
+  <view class="membership-card {{membershipInfo.isVIP ? 'vip-active' : 'free-user'}}">
+    <view class="card-header">
+      <view class="user-avatar">
+        <image src="/images/vip-crown.png" class="crown-icon" wx:if="{{membershipInfo.isVIP}}"></image>
+        <text class="membership-type">{{membershipInfo.isTrial ? '试用用户' : (membershipInfo.isVIP ? 'VIP会员' : '普通用户')}}</text>
+      </view>
+      <view class="membership-info">
+        <text class="member-type-text">{{membershipInfo.memberType === 'monthly' ? '月度会员' : (membershipInfo.memberType === 'quarterly' ? '季度会员' : (membershipInfo.memberType === 'yearly' ? '年度会员' : '免费用户'))}}</text>
+        <text class="remaining-days" wx:if="{{membershipInfo.remainingDays > 0}}">
+          剩余{{membershipInfo.remainingDays}}天
+        </text>
+        <text class="expired-text" wx:if="{{membershipInfo.remainingDays === 0 && membershipInfo.memberType !== 'free'}}">
+          已过期
+        </text>
+      </view>
+    </view>
+
+    <view class="card-body">
+      <text class="status-description" wx:if="{{membershipInfo.isVIP}}">
+        您正在享受VIP高级分析功能
+      </text>
+      <text class="status-description" wx:elif="{{membershipInfo.isTrial}}">
+        免费试用期，尽情体验VIP功能
+      </text>
+      <text class="status-description" wx:else>
+        升级VIP，解锁深度分析功能
+      </text>
+    </view>
+  </view>
+
+  <!-- 免费试用提示 -->
+  <view class="trial-banner" wx:if="{{!membershipInfo.isVIP && canStartTrial}}">
+    <view class="trial-content">
+      <text class="trial-icon">🎁</text>
+      <view class="trial-info">
+        <text class="trial-title">免费试用3天</text>
+        <text class="trial-desc">体验所有VIP高级功能</text>
+      </view>
+      <button class="trial-btn" bindtap="startTrial">立即试用</button>
+    </view>
+  </view>
+
+  <!-- VIP功能特权 -->
+  <view class="features-section">
+    <view class="section-header">
+      <text class="section-title">VIP学习内容</text>
+      <text class="section-desc">文化学习，知识普及</text>
+    </view>
+
+    <view class="features-list">
+      <view
+        class="feature-item {{membershipInfo.features.includes(item.id) ? 'available' : 'locked'}}"
+        wx:for="{{VIP_FEATURES}}"
+        wx:key="id"
+        bindtap="showFeatureDetail"
+        data-id="{{item.id}}"
+      >
+        <view class="feature-icon">
+          <text class="icon">{{item.icon}}</text>
+          <view class="lock-icon" wx:if="{{!membershipInfo.features.includes(item.id)}}">🔒</view>
+        </view>
+        <view class="feature-content">
+          <text class="feature-name">{{item.name}}</text>
+          <text class="feature-desc">{{item.description}}</text>
+        </view>
+        <view class="feature-status">
+          <text class="status-text">{{membershipInfo.features.includes(item.id) ? '已解锁' : 'VIP专享'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- VIP产品选择 -->
+  <view class="products-section" wx:if="{{!membershipInfo.isVIP}}">
+    <view class="section-header">
+      <text class="section-title">选择学习套餐</text>
+      <text class="section-desc">优质内容，学习体验</text>
+    </view>
+
+    <view class="products-list">
+      <view
+        class="product-item {{selectedProduct && selectedProduct.id && selectedProduct.id === item.id ? 'selected' : ''}}"
+        wx:for="{{[VIP_PRODUCTS.monthly, VIP_PRODUCTS.quarterly, VIP_PRODUCTS.yearly]}}"
+        wx:key="id"
+        bindtap="selectProduct"
+        data-type="{{item.id.replace('vip_', '')}}"
+      >
+        <view class="product-header">
+          <text class="product-name">{{item.name}}</text>
+          <view class="product-price">
+            <text class="price-symbol">¥</text>
+            <text class="price-value">{{formatPrice(item.price)}}</text>
+          </view>
+        </view>
+        <text class="product-desc">{{item.description}}</text>
+        <view class="product-badge" wx:if="{{item.id === 'vip_yearly'}}">最划算</view>
+      </view>
+    </view>
+
+    <button class="upgrade-btn" bindtap="selectProduct" data-type="monthly">
+      开通学习内容
+    </button>
+  </view>
+
+  <!-- 管理功能 -->
+  <view class="management-section" wx:if="{{membershipInfo.isVIP}}">
+    <view class="section-header">
+      <text class="section-title">学习管理</text>
+    </view>
+    <button class="management-btn" bindtap="viewOrders">查看订单记录</button>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+</view>
+
+<!-- 支付确认弹窗 -->
+<view class="payment-modal" wx:if="{{showPaymentModal && selectedProduct && selectedProduct.id}}">
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">确认开通学习内容</text>
+    </view>
+    <view class="modal-body">
+      <view class="product-summary">
+        <text class="product-name">{{selectedProduct.name}}</text>
+        <view class="product-price">
+          <text class="price-symbol">¥</text>
+          <text class="price-value">{{formatPrice(selectedProduct.price)}}</text>
+        </view>
+      </view>
+      <text class="product-desc">{{selectedProduct.description}}</text>
+    </view>
+    <view class="modal-footer">
+      <button class="modal-btn cancel" bindtap="closePaymentModal">取消</button>
+      <button class="modal-btn confirm" bindtap="confirmPayment">确认支付</button>
+    </view>
+  </view>
+  <view class="modal-mask" bindtap="closePaymentModal"></view>
+</view>
